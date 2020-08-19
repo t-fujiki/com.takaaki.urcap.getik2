@@ -6,7 +6,7 @@
 	<groupId>com.takaaki.urcap</groupId>
 	<artifactId>getik2</artifactId>
 	<version>1.0</version>
-	<name>Get Solution of Inverse Kinematic URCap</name>
+	<name>Getting Solution of Inverse Kinematic URCap</name>
 	<packaging>bundle</packaging>
 
 	<properties>
@@ -20,7 +20,7 @@
 		<urcap.vendor>Takaaki Fujiki</urcap.vendor>
 		<urcap.contactAddress>Akishima, Tokyo, Japan</urcap.contactAddress>
 		<urcap.copyright>2020, Takaaki Fujiki</urcap.copyright>
-		<urcap.description>Get Solution of Inverse Kinematic URCa</urcap.description>
+		<urcap.description>Getting Solution of Inverse Kinematic URCa</urcap.description>
 		<urcap.licenseType>None</urcap.licenseType>
 		<!--********************** END OF URCAP META DATA **********************-->
 		<!--********************************************************************-->
