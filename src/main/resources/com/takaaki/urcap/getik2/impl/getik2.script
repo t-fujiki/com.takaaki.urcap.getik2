@@ -1,0 +1,48 @@
+global getik2 = rpc_factory("xmlrpc", "http://127.0.0.1:56000/RPC2")
+
+def set_ur_type(ur):
+  getik2.set_ur_type(ur)
+end
+
+def set_pose(p):
+  x = p[0]
+  y = p[1]
+  z = p[2]
+  rx = p[3]
+  ry = p[4]
+  rz = p[5]
+
+  getik2.set_pose(x, y, z, rx, ry, rz)
+
+end
+
+def set_offset():
+  p = get_tcp_offset()
+
+  x = p[0]
+  y = p[1]
+  z = p[2]
+  rx = p[3]
+  ry = p[4]
+  rz = p[5]
+
+  getik2.set_offset(x, y, z, rx, ry, rz)
+
+end
+
+def get_angles(n):
+  return getik2.get_angles(n)
+end
+
+def get_angles_deg(n):
+  t = getik2.get_angles(n)
+
+  p = p[r2d(t[0]), r2d(t[1]), r2d(t[2]), r2d(t[3]), r2d(t[4]), r2d(t[5])]
+
+  return p
+end
+
+def get_pattern(p):
+  return getik2.get_pattern(p[0], p[1], p[2], p[3], p[4], p[5])
+end
+

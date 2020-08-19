@@ -1,0 +1,37 @@
+Import('env')
+
+HW_SOURCE = Split('''getik.cpp
+                     Data.cpp
+                     dhparam.cpp
+                     iksolver.cpp
+                     transmatrix.cpp
+                     ''')
+
+HW_CPPPATH = Split('''.
+                      service
+                       ''')
+
+HW_LIBPATH = Split('''.
+                      service
+                      ''')
+
+HW_LIBS = Split('''
+                   service
+                   m
+                   rt
+                   pthread
+                   ''')
+
+HW_CPPPATH.append(env['CPPPATH'])
+HW_LIBPATH.append(env['LIBPATH'])
+HW_LIBS.append(env['LIBS'])
+
+
+###############################################################################
+
+env.Program(target = 'GetIK',
+            source = HW_SOURCE,
+            CPPPATH = HW_CPPPATH,
+            LIBPATH = HW_LIBPATH,
+            LIBS = HW_LIBS)
+

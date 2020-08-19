@@ -1,0 +1,9 @@
+{
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "files.associations": {
+        "*.tcc": "cpp",
+        "memory": "cpp",
+        "type_traits": "cpp",
+        "cmath": "cpp"
+    }
+}
