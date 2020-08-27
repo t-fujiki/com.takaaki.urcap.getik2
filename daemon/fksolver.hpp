@@ -2,6 +2,7 @@ class FKSolver
 {
 private:
     int ur;
+
     double x;
     double y;
     double z;
@@ -16,7 +17,10 @@ private:
     double offset_ry;
     double offset_rz;
 
-    double delta_a[7], delta_d[7], delta_alpha[7], delta_theta[7];
+    double delta_a[7];
+    double delta_d[7];
+    double delta_alpha[7];
+    double delta_theta[7];
 
     double jacobian[6][6];
 

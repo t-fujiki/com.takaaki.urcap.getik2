@@ -1,48 +1,21 @@
-#include <math.h>
 #include <cmath>
 #include <iostream>
-#include "iksolver.hpp"
-#include "transmatrix.hpp"
-#include "ur.hpp"
+#include <vector>
+#include "analysisrobot.hpp"
 #include "dhparam.hpp"
-using namespace std;
+#include "transmatrix.hpp"
 
-double withinPI(double angle)
-{
-    double c = cos(angle);
-    double s = sin(angle);
-
-    return atan2(s, c);
-}
-
-IKSolver::IKSolver(int ur, Pose tcp_pose, Pose tcp_offset)
+AnalysisRobot::AnalysisRobot(int ur, Pose const *tcp_pose, Pose const *tcp_offset)
 {
     this->ur = ur;
-
     this->tcp_pose = tcp_pose;
     this->tcp_offset = tcp_offset;
-
-    for (int i = 0; i < 7; i++)
-        theta[i] = 0;
 }
 
-IKSolver::~IKSolver()
+double *AnalysisRobot::solveIK(int num)
 {
-}
+    double theta[7];
 
-void IKSolver::setCalibration(double *delta_a, double *delta_d, double *delta_alpha, double *delta_theta)
-{
-    for (int i = 1; i < 7; i++)
-    {
-        this->delta_a[i] = delta_a[i];
-        this->delta_d[i] = delta_d[i];
-        this->delta_alpha[i] = delta_alpha[i];
-        this->delta_theta[i] = delta_theta[i];
-    }
-}
-
-void IKSolver::solve(int num)
-{
     int number = num - 1;
 
     bool plusT5 = (number & 1) == 1;
@@ -52,29 +25,29 @@ void IKSolver::solve(int num)
     bool plusT1 = (number & 1) == 1;
 
     DHParam param(ur);
-    TransMatrix t_tcp(x, y, z, rx, ry, rz);
-    TransMatrix t_offset(offset_x, offset_y, offset_z, offset_rx, offset_ry, offset_rz);
+    TransMatrix t_tcp(tcp_pose);
+    TransMatrix t_offset(tcp_offset);
     TransMatrix t06 = t_tcp * t_offset.inverse();
 
     double *d = param.d;
     double *a = param.a;
     double *alpha = param.alpha;
 
-    double nx = t06.entry[0][0];
-    double ny = t06.entry[1][0];
-    double nz = t06.entry[2][0];
+    double nx = t06.getEntry(0, 0);
+    double ny = t06.getEntry(1, 0);
+    double nz = t06.getEntry(2, 0);
 
-    double ox = t06.entry[0][1];
-    double oy = t06.entry[1][1];
-    double oz = t06.entry[2][1];
+    double ox = t06.getEntry(0, 1);
+    double oy = t06.getEntry(1, 1);
+    double oz = t06.getEntry(2, 1);
 
-    double ax = t06.entry[0][2];
-    double ay = t06.entry[1][2];
-    double az = t06.entry[2][2];
+    double ax = t06.getEntry(0, 2);
+    double ay = t06.getEntry(1, 2);
+    double az = t06.getEntry(2, 2);
 
-    double px = t06.entry[0][3];
-    double py = t06.entry[1][3];
-    double pz = t06.entry[2][3];
+    double px = t06.getEntry(0, 3);
+    double py = t06.getEntry(1, 3);
+    double pz = t06.getEntry(2, 3);
 
     //---θ1
     double p05x = px - ax * d[6];
@@ -133,62 +106,68 @@ void IKSolver::solve(int num)
 
     for (int i = 1; i < 7; i++)
     {
-        theta[i] = withinPI(theta[i]);
+        double s = sin(theta[i]);
+        double c = cos(theta[i]);
+        theta[i] = atan2(s, c);
     }
-}
 
-double *IKSolver::getAngle()
-{
     return theta;
 }
 
-int IKSolver::getPattern(double *angles)
+Pose AnalysisRobot::solveFK(double const *theta)
 {
-    double theta[7];
-
-    for (int i = 1; i < 7; i++)
-        theta[i] = withinPI(angles[i - 1]);
-
-    bool plusT5 = false;
-    bool plusT3 = false;
-    bool plusT1 = false;
-
     DHParam param(ur);
 
     TransMatrix t[7];
     for (int i = 1; i < 7; i++)
         t[i] = TransMatrix(param.a[i], param.d[i], param.alpha[i], theta[i]);
 
-    TransMatrix t06 = t[1] * t[2] * t[3] * t[4] * t[5] * t[6];
+    TransMatrix t_offset = TransMatrix(tcp_offset);
+    TransMatrix t_tcp = t[1] * t[2] * t[3] * t[4] * t[5] * t[6] * t_offset;
 
-    double *d = param.d;
-    double *a = param.a;
-    double *alpha = param.alpha;
+    double r11 = t_tcp.getEntry(0, 0);
+    double r12 = t_tcp.getEntry(0, 1);
+    double r13 = t_tcp.getEntry(0, 2);
+    double r21 = t_tcp.getEntry(1, 0);
+    double r22 = t_tcp.getEntry(1, 1);
+    double r23 = t_tcp.getEntry(1, 2);
+    double r31 = t_tcp.getEntry(2, 0);
+    double r32 = t_tcp.getEntry(2, 1);
+    double r33 = t_tcp.getEntry(2, 2);
 
-    double ax = t06.entry[0][2];
-    double ay = t06.entry[1][2];
-    double az = t06.entry[2][2];
+    double x = t_tcp.getEntry(0, 3);
+    double y = t_tcp.getEntry(1, 3);
+    double z = t_tcp.getEntry(2, 3);
 
-    double px = t06.entry[0][3];
-    double py = t06.entry[1][3];
-    double pz = t06.entry[2][3];
+    double angle = acos((r11 + r22 + r33 - 1) / 2);
 
-    double p05x = px - ax * d[6];
-    double p05y = py - ay * d[6];
-    double p05z = pz - az * d[6];
+    double nx, ny, nz;
+    if (abs(sin(angle)) > 10E-6)
+    {
+        nx = (r32 - r23) / (2 * sin(angle));
+        ny = (r13 - r31) / (2 * sin(angle));
+        nz = (r21 - r12) / (2 * sin(angle));
 
-    double phi = atan2(p05y, p05x);
+        if (nx < 0)
+        {
+            angle = -acos((r11 + r22 + r33 - 1) / 2) + 2 * M_PI;
+            nx = (r32 - r23) / (2 * sin(angle));
+            ny = (r13 - r31) / (2 * sin(angle));
+            nz = (r21 - r12) / (2 * sin(angle));
+        }
+    }
+    else
+    {
+        nx = sqrt((r11 - cos(angle)) / (1 - cos(angle)));
+        ny = sqrt((r22 - cos(angle)) / (1 - cos(angle)));
+        nz = sqrt((r33 - cos(angle)) / (1 - cos(angle)));
+    }
 
-    double q = abs((withinPI(theta[1] - phi)));
+    double rx = nx * angle;
+    double ry = ny * angle;
+    double rz = nz * angle;
 
-    if (q < M_PI / 2)
-        plusT1 = true;
-    if (theta[3] >= 0)
-        plusT3 = true;
-    if (theta[5] >= 0)
-        plusT5 = true;
+    Pose tcp(x, y, z, rx, ry, rz);
 
-    int number = (plusT1 ? 4 : 0) + (plusT3 ? 2 : 0) + (plusT5 ? 1 : 0) + 1;
-
-    return number;
+    return tcp;
 }

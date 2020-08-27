@@ -35,49 +35,37 @@ void Data::setURType(string type)
     ur = UR::UR16e;
 }
 
-void Data::setPose(double x, double y, double z, double rx, double ry, double rz)
+void Data::setTCPPose(Pose const *tcp_pose)
 {
-  this->x = x;
-  this->y = y;
-  this->z = z;
-  this->rx = rx;
-  this->ry = ry;
-  this->rz = rz;
+  this->tcp_pose = tcp_pose;
 }
 
-void Data::setOffset(double x, double y, double z, double rx, double ry, double rz)
+void Data::setTCPOffset(Pose const *tcp_offset)
 {
-  this->offset_x = x;
-  this->offset_y = y;
-  this->offset_z = z;
-  this->offset_rx = rx;
-  this->offset_ry = ry;
-  this->offset_rz = rz;
+  this->tcp_offset = tcp_offset;
 }
 
-void Data::setCalibration(double *delta_a, double *delta_d, double *delta_alpha, double *delta_theta)
+void Data::setCalibrationConfig(double const *delta_a, double const *delta_d, double const *delta_alpha, double const *delta_theta)
 {
+  this->delta_a = delta_a;
+  this->delta_d = delta_d;
+  this->delta_alpha = delta_alpha;
+  this->delta_theta = delta_theta;
+}
+
+double *Data::getAnalysisAngle(int num)
+{
+  analysisRB = new AnalysisRobot(ur, tcp_pose, tcp_offset);
+
+  double *theta = analysisRB->solveIK(num);
+
+  double res[7];
   for (int i = 1; i < 7; i++)
-  {
-    this->delta_a[i] = delta_a[i];
-    this->delta_d[i] = delta_d[i];
-    this->delta_alpha[i] = delta_alpha[i];
-    this->delta_theta[i] = delta_theta[i];
-  }
-}
+    res[i] = theta[i];
 
-double *Data::getAngles(int num)
-{
-  IKSolver solver(ur, x, y, z, rx, ry, rz);
-  solver.setOffset(offset_x, offset_y, offset_z, offset_rx, offset_ry, offset_rz);
-  solver.setCalibration(delta_a, delta_d, delta_alpha, delta_theta);
-  solver.solve(num);
-  double *theta = solver.getAngle();
+  delete analysisRB;
 
-  for (int i = 0; i < 6; i++)
-    angle[i] = theta[i + 1];
-
-  return angle;
+  return res;
 }
 
 int Data::getPattern(double *angles)

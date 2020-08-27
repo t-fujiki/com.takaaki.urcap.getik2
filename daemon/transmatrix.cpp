@@ -2,10 +2,9 @@
 #include <math.h>
 #include "transmatrix.hpp"
 
-TransMatrix::TransMatrix(double x, double y, double z, double rx, double ry, double rz)
+TransMatrix::TransMatrix(Pose const *pose)
 {
-
-    double angle = sqrt(rx * rx + ry * ry + rz * rz);
+    double angle = sqrt(pose->rx * pose->rx + pose->rx * pose->rx + pose->rx * pose->rx);
 
     double r11 = 1;
     double r12 = 0;
@@ -19,9 +18,9 @@ TransMatrix::TransMatrix(double x, double y, double z, double rx, double ry, dou
 
     if (abs(angle) > 10E-10)
     {
-        double nx = rx / angle;
-        double ny = ry / angle;
-        double nz = rz / angle;
+        double nx = pose->rx / angle;
+        double ny = pose->rx / angle;
+        double nz = pose->rx / angle;
 
         double s = sin(angle);
         double c = cos(angle);
@@ -44,17 +43,17 @@ TransMatrix::TransMatrix(double x, double y, double z, double rx, double ry, dou
     entry[0][0] = r11;
     entry[0][1] = r12;
     entry[0][2] = r13;
-    entry[0][3] = x;
+    entry[0][3] = pose->x;
 
     entry[1][0] = r21;
     entry[1][1] = r22;
     entry[1][2] = r23;
-    entry[1][3] = y;
+    entry[1][3] = pose->y;
 
     entry[2][0] = r31;
     entry[2][1] = r32;
     entry[2][2] = r33;
-    entry[2][3] = z;
+    entry[2][3] = pose->z;
 
     entry[3][0] = 0;
     entry[3][1] = 0;
@@ -112,45 +111,51 @@ TransMatrix TransMatrix::operator*(const TransMatrix &tm)
 TransMatrix TransMatrix::inverse()
 {
     TransMatrix invMatrix;
+    double inv[4][4];
+    double tmp[4][4];
 
-    double A2323 = entry[2][2] * entry[3][3] - entry[2][3] * entry[3][2];
-    double A1323 = entry[2][1] * entry[3][3] - entry[2][3] * entry[3][1];
-    double A1223 = entry[2][1] * entry[3][2] - entry[2][2] * entry[3][1];
-    double A0323 = entry[2][0] * entry[3][3] - entry[2][3] * entry[3][0];
-    double A0223 = entry[2][0] * entry[3][2] - entry[2][2] * entry[3][0];
-    double A0123 = entry[2][0] * entry[3][1] - entry[2][1] * entry[3][0];
-    double A2313 = entry[1][2] * entry[3][3] - entry[1][3] * entry[3][2];
-    double A1313 = entry[1][1] * entry[3][3] - entry[1][3] * entry[3][1];
-    double A1213 = entry[1][1] * entry[3][2] - entry[1][2] * entry[3][1];
-    double A2312 = entry[1][2] * entry[2][3] - entry[1][3] * entry[2][2];
-    double A1312 = entry[1][1] * entry[2][3] - entry[1][3] * entry[2][1];
-    double A1212 = entry[1][1] * entry[2][2] - entry[1][2] * entry[2][1];
-    double A0313 = entry[1][0] * entry[3][3] - entry[1][3] * entry[3][0];
-    double A0213 = entry[1][0] * entry[3][2] - entry[1][2] * entry[3][0];
-    double A0312 = entry[1][0] * entry[2][3] - entry[1][3] * entry[2][0];
-    double A0212 = entry[1][0] * entry[2][2] - entry[1][2] * entry[2][0];
-    double A0113 = entry[1][0] * entry[3][1] - entry[1][1] * entry[3][0];
-    double A0112 = entry[1][0] * entry[2][1] - entry[1][1] * entry[2][0];
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            tmp[i][j] = entry[i][j];
+            inv[i][j] = (i == j) ? 1.0 : 0.0;
+        }
+    }
 
-    double det = entry[0][0] * (entry[1][1] * A2323 - entry[1][2] * A1323 + entry[1][3] * A1223) - entry[0][1] * (entry[1][0] * A2323 - entry[1][2] * A0323 + entry[1][3] * A0223) + entry[0][2] * (entry[1][0] * A1323 - entry[1][1] * A0323 + entry[1][3] * A0123) - entry[0][3] * (entry[1][0] * A1223 - entry[1][1] * A0223 + entry[1][2] * A0123);
-    det = 1 / det;
+    for (int i = 0; i < 4; i++)
+    {
+        double buf = 1 / tmp[i][i];
+        for (int j = 0; j < 4; j++)
+        {
+            tmp[i][j] *= buf;
+            inv[i][j] *= buf;
+        }
+        for (int j = 0; j < 4; j++)
+        {
+            if (i != j)
+            {
+                buf = tmp[j][i];
+                for (int k = 0; k < 4; k++)
+                {
+                    tmp[j][k] -= tmp[i][k] * buf;
+                    inv[j][k] -= inv[i][k] * buf;
+                }
+            }
+        }
+    }
 
-    invMatrix.entry[0][0] = det * (entry[1][1] * A2323 - entry[1][2] * A1323 + entry[1][3] * A1223);
-    invMatrix.entry[0][1] = det * -(entry[0][1] * A2323 - entry[0][2] * A1323 + entry[0][3] * A1223);
-    invMatrix.entry[0][2] = det * (entry[0][1] * A2313 - entry[0][2] * A1313 + entry[0][3] * A1213);
-    invMatrix.entry[0][3] = det * -(entry[0][1] * A2312 - entry[0][2] * A1312 + entry[0][3] * A1212);
-    invMatrix.entry[1][0] = det * -(entry[1][0] * A2323 - entry[1][2] * A0323 + entry[1][3] * A0223);
-    invMatrix.entry[1][1] = det * (entry[0][0] * A2323 - entry[0][2] * A0323 + entry[0][3] * A0223);
-    invMatrix.entry[1][2] = det * -(entry[0][0] * A2313 - entry[0][2] * A0313 + entry[0][3] * A0213);
-    invMatrix.entry[1][3] = det * (entry[0][0] * A2312 - entry[0][2] * A0312 + entry[0][3] * A0212);
-    invMatrix.entry[2][0] = det * (entry[1][0] * A1323 - entry[1][1] * A0323 + entry[1][3] * A0123);
-    invMatrix.entry[2][1] = det * -(entry[0][0] * A1323 - entry[0][1] * A0323 + entry[0][3] * A0123);
-    invMatrix.entry[2][2] = det * (entry[0][0] * A1313 - entry[0][1] * A0313 + entry[0][3] * A0113);
-    invMatrix.entry[2][3] = det * -(entry[0][0] * A1312 - entry[0][1] * A0312 + entry[0][3] * A0112);
-    invMatrix.entry[3][0] = det * -(entry[1][0] * A1223 - entry[1][1] * A0223 + entry[1][2] * A0123);
-    invMatrix.entry[3][1] = det * (entry[0][0] * A1223 - entry[0][1] * A0223 + entry[0][2] * A0123);
-    invMatrix.entry[3][2] = det * -(entry[0][0] * A1213 - entry[0][1] * A0213 + entry[0][2] * A0113);
-    invMatrix.entry[3][3] = det * (entry[0][0] * A1212 - entry[0][1] * A0212 + entry[0][2] * A0112);
+    for (int i = 0; i < 4; i++)
+        for (int j = 0; j < 4; j++)
+            invMatrix.setEntry(i, j, inv[i][j]);
+}
 
-    return invMatrix;
+double TransMatrix::setEntry(int i, int j, double value)
+{
+    entry[i][j] = value;
+}
+
+double TransMatrix::getEntry(int i, int j)
+{
+    return entry[i][j];
 }

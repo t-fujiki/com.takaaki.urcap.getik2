@@ -36,7 +36,7 @@ void SetPose::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *con
   double const rz(paramList.getDouble(5));
   paramList.verifyEnd(6);
 
-  data->setPose(x, y, z, rx, ry, rz);
+  data->setTCPPose(x, y, z, rx, ry, rz);
 
   *retvalP = xmlrpc_c::value_string("done"); // XML-RPC void return values are an extension to the protocol and not always available or compatible between languages.
 }
@@ -57,7 +57,7 @@ void SetOffset::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *c
   double const rz(paramList.getDouble(5));
   paramList.verifyEnd(6);
 
-  data->setOffset(x, y, z, rx, ry, rz);
+  data->setTCPOffset(x, y, z, rx, ry, rz);
 
   *retvalP = xmlrpc_c::value_string("done"); // XML-RPC void return values are an extension to the protocol and not always available or compatible between languages.
 }

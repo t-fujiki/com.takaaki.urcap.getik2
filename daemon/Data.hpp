@@ -1,6 +1,9 @@
 #pragma once
 
 #include <iostream>
+#include "pose.hpp"
+#include "analysisrobot.hpp"
+#include "realrobot.hpp"
 using namespace std;
 
 /**
@@ -9,27 +12,29 @@ using namespace std;
  */
 class Data
 {
+private:
+  int ur;
+  AnalysisRobot *analysisRB;
+  RealRobot *realRB;
+  Pose const *tcp_pose;
+  Pose const *tcp_offset;
+
+  double const *delta_a;
+  double const *delta_d;
+  double const *delta_alpha;
+  double const *delta_theta;
+
 public:
   Data();
   ~Data();
 
   void setURType(string type);
-  void setPose(double x, double y, double z, double rx, double ry, double rz);
-  void setOffset(double x, double y, double z, double rx, double ry, double rz);
-  void setCalibration(double *delta_a, double *delta_d, double *delta_alpha, double *delta_theta);
-  double *getAngles(int num);
+  void setTCPPose(Pose const *tcp_pose);
+  void setTCPOffset(Pose const *tcp_offset);
+  void setCalibrationConfig(double const *delta_a, double const *delta_d, double const *delta_alpha, double const *delta_theta);
+  double *getAnalysisAngle(int num);
+  double *getRealAngle(int num);
+
   int getPattern(double *angles);
   double *getPose(double *theta);
-
-private:
-  double x,
-      y,
-      z,
-      rx,
-      ry,
-      rz;
-  double offset_x, offset_y, offset_z, offset_rx, offset_ry, offset_rz;
-  double angle[6];
-  double delta_a[7], delta_d[7], delta_alpha[7], delta_theta[7];
-  int ur;
 };
