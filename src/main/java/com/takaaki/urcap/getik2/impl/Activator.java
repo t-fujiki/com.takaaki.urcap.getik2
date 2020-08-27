@@ -11,7 +11,8 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 
 		GetIK2DaemonService stringDaemonService = new GetIK2DaemonService();
-		GetIK2InstallationNodeService statusMonitorInstallationNodeService = new GetIK2InstallationNodeService(stringDaemonService);
+		GetIK2InstallationNodeService statusMonitorInstallationNodeService = new GetIK2InstallationNodeService(
+				stringDaemonService);
 
 		context.registerService(DaemonService.class, stringDaemonService, null);
 		context.registerService(InstallationNodeService.class, statusMonitorInstallationNodeService, null);

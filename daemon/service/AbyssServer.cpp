@@ -18,8 +18,10 @@ AbyssServer::AbyssServer(Data *data) : data(data)
   serviceRegistry.addMethod("set_ur_type", new SetURType(data));
   serviceRegistry.addMethod("set_pose", new SetPose(data));
   serviceRegistry.addMethod("set_offset", new SetOffset(data));
+  serviceRegistry.addMethod("set_calibration", new SetCalibration(data));
   serviceRegistry.addMethod("get_angles", new GetAngles(data));
   serviceRegistry.addMethod("get_pattern", new GetPattern(data));
+  serviceRegistry.addMethod("get_pose", new GetPose(data));
 }
 
 AbyssServer::~AbyssServer()

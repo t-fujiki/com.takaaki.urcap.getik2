@@ -4,6 +4,8 @@
         "*.tcc": "cpp",
         "memory": "cpp",
         "type_traits": "cpp",
-        "cmath": "cpp"
+        "cmath": "cpp",
+        "ostream": "cpp",
+        "random": "cpp"
     }
 }

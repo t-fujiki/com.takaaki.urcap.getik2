@@ -30,6 +30,13 @@ def set_offset():
 
 end
 
+def set_calibration(d_a1, d_a2, d_a3, d_a4, d_a5, d_a6, d_d1, d_d2, d_d3, d_d4, d_d5, d_d6, d_alpha1, d_alpha2, d_alpha3, d_alpha4, d_alpha5, d_alpha6, d_theta1, d_theta2, d_theta3, d_theta4, d_theta5, d_theta6):
+
+  getik2.set_calibration(d_a1, d_a2, d_a3, d_a4, d_a5, d_a6, d_d1, d_d2, d_d3, d_d4, d_d5, d_d6, d_alpha1, d_alpha2, d_alpha3, d_alpha4, d_alpha5, d_alpha6, d_theta1, d_theta2, d_theta3, d_theta4, d_theta5, d_theta6)
+
+end
+
+
 def get_angles(n):
   return getik2.get_angles(n)
 end
@@ -44,5 +51,9 @@ end
 
 def get_pattern(p):
   return getik2.get_pattern(p[0], p[1], p[2], p[3], p[4], p[5])
+end
+
+def get_pose(j):
+  return getik2.get_pose(j[0], j[1], j[2], j[3], j[4], j[5])
 end
 

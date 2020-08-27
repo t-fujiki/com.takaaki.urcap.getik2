@@ -50,6 +50,17 @@ void IKSolver::setOffset(double x, double y, double z, double rx, double ry, dou
     offset_rz = rz;
 }
 
+void IKSolver::setCalibration(double *delta_a, double *delta_d, double *delta_alpha, double *delta_theta)
+{
+    for (int i = 1; i < 7; i++)
+    {
+        this->delta_a[i] = delta_a[i];
+        this->delta_d[i] = delta_d[i];
+        this->delta_alpha[i] = delta_alpha[i];
+        this->delta_theta[i] = delta_theta[i];
+    }
+}
+
 void IKSolver::solve(int num)
 {
     int number = num - 1;
@@ -198,8 +209,6 @@ int IKSolver::getPattern(double *angles)
         plusT5 = true;
 
     int number = (plusT1 ? 4 : 0) + (plusT3 ? 2 : 0) + (plusT5 ? 1 : 0) + 1;
-
-    
 
     return number;
 }

@@ -4,6 +4,8 @@ HW_SOURCE = Split('''getik.cpp
                      Data.cpp
                      dhparam.cpp
                      iksolver.cpp
+                     fksolver.cpp
+                     jacobian.cpp
                      transmatrix.cpp
                      ''')
 

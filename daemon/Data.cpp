@@ -3,6 +3,8 @@
 #include <string>
 #include "Data.hpp"
 #include "iksolver.hpp"
+#include "fksolver.hpp"
+#include "jacobian.hpp"
 #include "ur.hpp"
 
 using namespace std;
@@ -53,10 +55,22 @@ void Data::setOffset(double x, double y, double z, double rx, double ry, double 
   this->offset_rz = rz;
 }
 
+void Data::setCalibration(double *delta_a, double *delta_d, double *delta_alpha, double *delta_theta)
+{
+  for (int i = 1; i < 7; i++)
+  {
+    this->delta_a[i] = delta_a[i];
+    this->delta_d[i] = delta_d[i];
+    this->delta_alpha[i] = delta_alpha[i];
+    this->delta_theta[i] = delta_theta[i];
+  }
+}
+
 double *Data::getAngles(int num)
 {
   IKSolver solver(ur, x, y, z, rx, ry, rz);
   solver.setOffset(offset_x, offset_y, offset_z, offset_rx, offset_ry, offset_rz);
+  solver.setCalibration(delta_a, delta_d, delta_alpha, delta_theta);
   solver.solve(num);
   double *theta = solver.getAngle();
 
@@ -70,4 +84,34 @@ int Data::getPattern(double *angles)
 {
   IKSolver solver(ur, x, y, z, rx, ry, rz);
   return solver.getPattern(angles);
+}
+
+double *Data::getPose(double *angles)
+{
+  double theta[7];
+
+  for (int i = 1; i < 7; i++)
+    theta[i] = angles[i - 1];
+
+  FKSolver solver(ur);
+  solver.setOffset(offset_x, offset_y, offset_z, offset_rx, offset_ry, offset_rz);
+  solver.setCalibration(delta_a, delta_d, delta_alpha, delta_theta);
+  solver.solve(theta);
+
+  double pose[6];
+  pose[0] = solver.getX();
+  pose[1] = solver.getY();
+  pose[2] = solver.getZ();
+  pose[3] = solver.getRx();
+  pose[4] = solver.getRy();
+  pose[5] = solver.getRz();
+
+  Jacobian jacobian(ur);
+  jacobian.setOffset(offset_x, offset_y, offset_z, offset_rx, offset_ry, offset_rz);
+  jacobian.setCalibration(delta_a, delta_d, delta_alpha, delta_theta);
+  jacobian.solve(theta);
+  jacobian.inverse();
+  jacobian.calc();
+
+  return pose;
 }

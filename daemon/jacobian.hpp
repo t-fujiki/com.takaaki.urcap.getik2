@@ -1,4 +1,4 @@
-class IKSolver
+class Jacobian
 {
 private:
     int ur;
@@ -16,16 +16,17 @@ private:
     double offset_ry;
     double offset_rz;
 
-    double theta[7];
-
     double delta_a[7], delta_d[7], delta_alpha[7], delta_theta[7];
 
+    double entry[6][6];
+    double inv_entry[6][6];
+
 public:
-    IKSolver(int ur, double x, double y, double z, double rx, double ry, double rz);
-    ~IKSolver();
+    Jacobian(int ur);
+    ~Jacobian();
     void setOffset(double x, double y, double z, double rx, double ry, double rz);
     void setCalibration(double *delta_a, double *delta_d, double *delta_alpha, double *delta_theta);
-    void solve(int num);
-    double *getAngle();
-    int getPattern(double *angles);
+    void solve(double *theta);
+    void inverse();
+    void calc();
 };

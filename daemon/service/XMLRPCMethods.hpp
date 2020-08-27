@@ -43,6 +43,17 @@ private:
   Data *data;
 };
 
+class SetCalibration : public xmlrpc_c::method
+{
+public:
+  SetCalibration(Data *data);
+  void execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const retvalP);
+
+private:
+  SetCalibration(); // Hereby disabled
+  Data *data;
+};
+
 class GetAngles : public xmlrpc_c::method
 {
 public:
@@ -62,5 +73,16 @@ public:
 
 private:
   GetPattern(); // Hereby disabled
+  Data *data;
+};
+
+class GetPose : public xmlrpc_c::method
+{
+public:
+  GetPose(Data *data);
+  void execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const retvalP);
+
+private:
+  GetPose(); // Hereby disabled
   Data *data;
 };
