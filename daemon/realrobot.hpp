@@ -1,20 +1,25 @@
 #include "pose.hpp"
+#include "Eigen/Dense"
+using namespace Eigen;
+
+typedef Matrix<double, 6, 6> Matrix6d;
 
 class RealRobot
 {
 private:
     int ur;
-    Pose const *tcp_pose;
-    Pose const *tcp_offset;
+    Pose tcp_pose;
+    Pose tcp_offset;
 
-    double const *delta_a;
-    double const *delta_d;
-    double const *delta_alpha;
-    double const *delta_theta;
+    double *delta_a;
+    double *delta_d;
+    double *delta_alpha;
+    double *delta_theta;
 
 public:
-    RealRobot(int ur, Pose const *tcp_pose, Pose const *tcp_offset);
-    void setCalibrationConfig(double const *delta_a, double const *delta_d, double const *delta_alpha, double const *delta_theta);
-    double *solveIK(int num);
-    Pose solveFK(double const *theta);
+    RealRobot(int ur, Pose tcp_pose, Pose tcp_offset);
+    void setCalibrationConfig(double *delta_a, double *delta_d, double *delta_alpha, double *delta_theta);
+    Pose solveFK(double *theta);
+    Matrix6d getJacobian(double *theta);
+    Matrix6d getInverseOfJacobian(double *theta);
 };

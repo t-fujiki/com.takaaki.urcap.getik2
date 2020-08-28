@@ -16,12 +16,15 @@ AbyssServer::AbyssServer(Data *data) : data(data)
 {
   // Add all adapters defined in XMLRPCMethods here
   serviceRegistry.addMethod("set_ur_type", new SetURType(data));
-  serviceRegistry.addMethod("set_pose", new SetPose(data));
-  serviceRegistry.addMethod("set_offset", new SetOffset(data));
-  serviceRegistry.addMethod("set_calibration", new SetCalibration(data));
-  serviceRegistry.addMethod("get_angles", new GetAngles(data));
+  serviceRegistry.addMethod("set_tcp_pose", new SetTCPPose(data));
+  serviceRegistry.addMethod("set_tcp_offset", new SetTCPOffset(data));
+  serviceRegistry.addMethod("set_calibration_a", new SetCalibrationConfigA(data));
+  serviceRegistry.addMethod("set_calibration_d", new SetCalibrationConfigD(data));
+  serviceRegistry.addMethod("set_calibration_alpha", new SetCalibrationConfigAlpha(data));
+  serviceRegistry.addMethod("set_calibration_theta", new SetCalibrationConfigTheta(data));
+  serviceRegistry.addMethod("get_analysis_angle", new GetAnalysisAngle(data));
+  serviceRegistry.addMethod("get_real_angle", new GetRealAngle(data));
   serviceRegistry.addMethod("get_pattern", new GetPattern(data));
-  serviceRegistry.addMethod("get_pose", new GetPose(data));
 }
 
 AbyssServer::~AbyssServer()

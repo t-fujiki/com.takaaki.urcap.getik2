@@ -9,15 +9,15 @@
  * @brief xmlrpc-c Abyss server for XML-RPC communication.
  * See: http://xmlrpc-c.sourceforge.net/doc/libxmlrpc_server_abyss++.html
  */
-class AbyssServer {
+class AbyssServer
+{
 
-  public:
-    AbyssServer(Data* data);
-    virtual ~AbyssServer();
-    static void* run(void* aserver);
+public:
+  AbyssServer(Data *data);
+  virtual ~AbyssServer();
+  static void *run(void *aserver);
 
-  private:
-    Data* data;
-    xmlrpc_c::registry serviceRegistry;
+private:
+  Data *data;
+  xmlrpc_c::registry serviceRegistry;
 };
-

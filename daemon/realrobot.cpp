@@ -5,32 +5,43 @@
 #include "dhparam.hpp"
 #include "transmatrix.hpp"
 
-RealRobot::RealRobot(int ur, Pose const *tcp_pose, Pose const *tcp_offset)
+RealRobot::RealRobot(int ur, Pose tcp_pose, Pose tcp_offset)
 {
     this->ur = ur;
     this->tcp_pose = tcp_pose;
     this->tcp_offset = tcp_offset;
 }
 
-void RealRobot::setCalibrationConfig(double const *delta_a, double const *delta_d, double const *delta_alpha, double const *delta_theta)
+void RealRobot::setCalibrationConfig(double *delta_a, double *delta_d, double *delta_alpha, double *delta_theta)
 {
     this->delta_a = delta_a;
     this->delta_d = delta_d;
     this->delta_alpha = delta_alpha;
     this->delta_theta = delta_theta;
-}
-double *RealRobot::solveIK(int num)
-{
+
+    for (int i = 1; i < 7; i++)
+    {
+        cout << "a:" << delta_a[i] << endl;
+        cout << "d:" << delta_d[i] << endl;
+        cout << "alpha:" << delta_alpha[i] << endl;
+        cout << "theta:" << delta_theta[i] << endl;
+    }
 }
 
-Pose RealRobot::solveFK(double const *theta)
+Pose RealRobot::solveFK(double *theta)
 {
     DHParam param(ur);
 
     TransMatrix t[7];
     for (int i = 1; i < 7; i++)
+    {
         t[i] = TransMatrix(param.a[i] + delta_a[i], param.d[i] + delta_d[i],
                            param.alpha[i] + delta_alpha[i], theta[i] + delta_theta[i]);
+        /* cout << "a:" << delta_a[i] << endl;
+        cout << "d:" << delta_d[i] << endl;
+        cout << "alpha:" << delta_alpha[i] << endl;
+        cout << "theta:" << delta_theta[i] << endl;*/
+    }
 
     TransMatrix t_offset = TransMatrix(tcp_offset);
     TransMatrix t_tcp = t[1] * t[2] * t[3] * t[4] * t[5] * t[6] * t_offset;
@@ -79,5 +90,50 @@ Pose RealRobot::solveFK(double const *theta)
 
     Pose tcp(x, y, z, rx, ry, rz);
 
+    cout << "<Solved real TCP>" << endl;
+    cout << "X:" << x << endl;
+    cout << "Y:" << y << endl;
+    cout << "Z:" << z << endl;
+    cout << "Rx:" << rx << endl;
+    cout << "Ry:" << ry << endl;
+    cout << "Rz:" << rz << endl;
+
     return tcp;
+}
+
+Matrix6d RealRobot::getJacobian(double *theta)
+{
+    Matrix6d jacobian;
+
+    double dt = 10E-6;
+
+    for (int j = 1; j < 7; j++)
+    {
+        double theta_p[7];
+        double theta_m[7];
+
+        for (int k = 1; k < 7; k++)
+        {
+            theta_p[k] = j == k ? theta[k] + dt : theta[k];
+            theta_m[k] = j == k ? theta[k] - dt : theta[k];
+        }
+
+        Pose tcp_p = solveFK(theta_p);
+        Pose tcp_m = solveFK(theta_m);
+
+        for (int i = 0; i < 6; i++)
+            jacobian(i, j - 1) = (tcp_p.toVector().at(i) - tcp_m.toVector().at(i)) / (2 * dt);
+    }
+
+    cout << "<Solved jacobian matrix>" << endl;
+    cout << jacobian << endl;
+
+    return jacobian;
+}
+
+Matrix6d RealRobot::getInverseOfJacobian(double *theta)
+{
+    Matrix6d jacobian = getJacobian(theta);
+
+    return jacobian.inverse();
 }

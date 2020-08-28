@@ -1,14 +1,16 @@
 #include <iostream>
 #include <vector>
 #include "pose.hpp"
+#include "Eigen/Dense"
+using namespace Eigen;
 
 class TransMatrix
 {
 private:
-    double entry[4][4];
-
 public:
-    TransMatrix(Pose const *pose);
+    Matrix4d entry;
+
+    TransMatrix(Pose pose);
     TransMatrix(double a, double d, double alpha, double theta);
     TransMatrix();
     ~TransMatrix();

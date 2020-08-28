@@ -1,10 +1,12 @@
 #include <cstdlib>
-#include <math.h>
+#include <cmath>
 #include "transmatrix.hpp"
 
-TransMatrix::TransMatrix(Pose const *pose)
+TransMatrix::TransMatrix(Pose pose)
 {
-    double angle = sqrt(pose->rx * pose->rx + pose->rx * pose->rx + pose->rx * pose->rx);
+    double angle = sqrt(pose.rx * pose.rx + pose.ry * pose.ry + pose.rz * pose.rz);
+
+    cout << "Sin(angle):" << sin(angle) << endl;
 
     double r11 = 1;
     double r12 = 0;
@@ -16,11 +18,11 @@ TransMatrix::TransMatrix(Pose const *pose)
     double r32 = 0;
     double r33 = 1;
 
-    if (abs(angle) > 10E-10)
+    if (abs(sin(angle)) > 10E-10)
     {
-        double nx = pose->rx / angle;
-        double ny = pose->rx / angle;
-        double nz = pose->rx / angle;
+        double nx = pose.rx / angle;
+        double ny = pose.ry / angle;
+        double nz = pose.rz / angle;
 
         double s = sin(angle);
         double c = cos(angle);
@@ -40,56 +42,56 @@ TransMatrix::TransMatrix(Pose const *pose)
         r33 = c + nz * nz * m;
     }
 
-    entry[0][0] = r11;
-    entry[0][1] = r12;
-    entry[0][2] = r13;
-    entry[0][3] = pose->x;
+    entry(0, 0) = r11;
+    entry(0, 1) = r12;
+    entry(0, 2) = r13;
+    entry(0, 3) = pose.x;
 
-    entry[1][0] = r21;
-    entry[1][1] = r22;
-    entry[1][2] = r23;
-    entry[1][3] = pose->y;
+    entry(1, 0) = r21;
+    entry(1, 1) = r22;
+    entry(1, 2) = r23;
+    entry(1, 3) = pose.y;
 
-    entry[2][0] = r31;
-    entry[2][1] = r32;
-    entry[2][2] = r33;
-    entry[2][3] = pose->z;
+    entry(2, 0) = r31;
+    entry(2, 1) = r32;
+    entry(2, 2) = r33;
+    entry(2, 3) = pose.z;
 
-    entry[3][0] = 0;
-    entry[3][1] = 0;
-    entry[3][2] = 0;
-    entry[3][3] = 1;
+    entry(3, 0) = 0;
+    entry(3, 1) = 0;
+    entry(3, 2) = 0;
+    entry(3, 3) = 1;
 }
 
 TransMatrix::TransMatrix(double a, double d, double alpha, double theta)
 {
 
-    entry[0][0] = cos(theta);
-    entry[0][1] = -sin(theta) * cos(alpha);
-    entry[0][2] = sin(theta) * sin(alpha);
-    entry[0][3] = a * cos(theta);
+    entry(0, 0) = cos(theta);
+    entry(0, 1) = -sin(theta) * cos(alpha);
+    entry(0, 2) = sin(theta) * sin(alpha);
+    entry(0, 3) = a * cos(theta);
 
-    entry[1][0] = sin(theta);
-    entry[1][1] = cos(theta) * cos(alpha);
-    entry[1][2] = -cos(theta) * sin(alpha);
-    entry[1][3] = a * sin(theta);
+    entry(1, 0) = sin(theta);
+    entry(1, 1) = cos(theta) * cos(alpha);
+    entry(1, 2) = -cos(theta) * sin(alpha);
+    entry(1, 3) = a * sin(theta);
 
-    entry[2][0] = 0;
-    entry[2][1] = sin(alpha);
-    entry[2][2] = cos(alpha);
-    entry[2][3] = d;
+    entry(2, 0) = 0;
+    entry(2, 1) = sin(alpha);
+    entry(2, 2) = cos(alpha);
+    entry(2, 3) = d;
 
-    entry[3][0] = 0;
-    entry[3][1] = 0;
-    entry[3][2] = 0;
-    entry[3][3] = 1;
+    entry(3, 0) = 0;
+    entry(3, 1) = 0;
+    entry(3, 2) = 0;
+    entry(3, 3) = 1;
 }
 
 TransMatrix::TransMatrix()
 {
     for (int i = 0; i < 4; i++)
         for (int j = 0; j < 4; j++)
-            entry[i][j] = 0;
+            entry(i, j) = 0;
 }
 
 TransMatrix::~TransMatrix()
@@ -100,10 +102,14 @@ TransMatrix TransMatrix::operator*(const TransMatrix &tm)
 {
     TransMatrix matrix;
 
+    matrix.entry = this->entry * tm.entry;
+
+    /*
     for (int i = 0; i < 4; i++)
         for (int j = 0; j < 4; j++)
             for (int k = 0; k < 4; k++)
                 matrix.entry[i][j] += entry[i][k] * tm.entry[k][j];
+    */
 
     return matrix;
 }
@@ -111,6 +117,12 @@ TransMatrix TransMatrix::operator*(const TransMatrix &tm)
 TransMatrix TransMatrix::inverse()
 {
     TransMatrix invMatrix;
+
+    invMatrix.entry = this->entry.inverse();
+
+    return invMatrix;
+
+    /*
     double inv[4][4];
     double tmp[4][4];
 
@@ -148,14 +160,15 @@ TransMatrix TransMatrix::inverse()
     for (int i = 0; i < 4; i++)
         for (int j = 0; j < 4; j++)
             invMatrix.setEntry(i, j, inv[i][j]);
+            */
 }
 
 double TransMatrix::setEntry(int i, int j, double value)
 {
-    entry[i][j] = value;
+    entry(i, j) = value;
 }
 
 double TransMatrix::getEntry(int i, int j)
 {
-    return entry[i][j];
+    return entry(i, j);
 }

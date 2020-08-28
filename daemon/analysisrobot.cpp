@@ -5,16 +5,17 @@
 #include "dhparam.hpp"
 #include "transmatrix.hpp"
 
-AnalysisRobot::AnalysisRobot(int ur, Pose const *tcp_pose, Pose const *tcp_offset)
+AnalysisRobot::AnalysisRobot(int ur, Pose tcp_pose, Pose tcp_offset)
 {
     this->ur = ur;
     this->tcp_pose = tcp_pose;
     this->tcp_offset = tcp_offset;
 }
 
-double *AnalysisRobot::solveIK(int num)
+vector<double> AnalysisRobot::solveIK(int num)
 {
     double theta[7];
+    theta[0] = 0;
 
     int number = num - 1;
 
@@ -28,6 +29,10 @@ double *AnalysisRobot::solveIK(int num)
     TransMatrix t_tcp(tcp_pose);
     TransMatrix t_offset(tcp_offset);
     TransMatrix t06 = t_tcp * t_offset.inverse();
+
+    cout << t_tcp.entry << endl;
+    cout << t_offset.entry << endl;
+    cout << t06.entry << endl;
 
     double *d = param.d;
     double *a = param.a;
@@ -104,23 +109,36 @@ double *AnalysisRobot::solveIK(int num)
 
     theta[4] = atan2(s234, c234) - theta[2] - theta[3];
 
+    vector<double> theta_vector;
+    theta_vector.push_back(0);
+
+    cout << "<Solved analysis solution>" << endl;
+
     for (int i = 1; i < 7; i++)
     {
         double s = sin(theta[i]);
         double c = cos(theta[i]);
         theta[i] = atan2(s, c);
+
+        cout << i << ":" << theta[i] << endl;
+
+        theta_vector.push_back(theta[i]);
     }
 
-    return theta;
+    return theta_vector;
 }
 
-Pose AnalysisRobot::solveFK(double const *theta)
+Pose AnalysisRobot::solveFK(double *theta)
 {
     DHParam param(ur);
 
     TransMatrix t[7];
     for (int i = 1; i < 7; i++)
+    {
+        cout << i << ":" << theta[i] << endl;
+
         t[i] = TransMatrix(param.a[i], param.d[i], param.alpha[i], theta[i]);
+    }
 
     TransMatrix t_offset = TransMatrix(tcp_offset);
     TransMatrix t_tcp = t[1] * t[2] * t[3] * t[4] * t[5] * t[6] * t_offset;
@@ -169,5 +187,72 @@ Pose AnalysisRobot::solveFK(double const *theta)
 
     Pose tcp(x, y, z, rx, ry, rz);
 
+    cout << "<Solved analysis TCP>" << endl;
+    cout << "X:" << x << endl;
+    cout << "Y:" << y << endl;
+    cout << "Z:" << z << endl;
+    cout << "Rx:" << rx << endl;
+    cout << "Ry:" << ry << endl;
+    cout << "Rz:" << rz << endl;
+
     return tcp;
+}
+
+int AnalysisRobot::getPattern(double *theta)
+{
+    double _theta[7];
+
+    for (int i = 1; i < 7; i++)
+    {
+        double s = sin(theta[i]);
+        double c = cos(theta[i]);
+        _theta[i] = atan2(s, c);
+    }
+
+    bool plusT5 = false;
+    bool plusT3 = false;
+    bool plusT1 = false;
+
+    DHParam param(ur);
+
+    TransMatrix t[7];
+    for (int i = 1; i < 7; i++)
+    {
+        t[i] = TransMatrix(param.a[i], param.d[i], param.alpha[i], _theta[i]);
+    }
+
+    TransMatrix t_flange = t[1] * t[2] * t[3] * t[4] * t[5] * t[6];
+
+    double *d = param.d;
+    double *a = param.a;
+    double *alpha = param.alpha;
+
+    double ax = t_flange.getEntry(0, 2);
+    double ay = t_flange.getEntry(1, 2);
+    double az = t_flange.getEntry(2, 2);
+
+    double px = t_flange.getEntry(0, 3);
+    double py = t_flange.getEntry(1, 3);
+    double pz = t_flange.getEntry(2, 3);
+
+    double p05x = px - ax * d[6];
+    double p05y = py - ay * d[6];
+    double p05z = pz - az * d[6];
+
+    double phi = atan2(p05y, p05x);
+
+    double s = sin(_theta[1] - phi);
+    double c = cos(_theta[1] - phi);
+    double q = abs(atan2(s, c));
+
+    if (q < M_PI / 2)
+        plusT1 = true;
+    if (_theta[3] >= 0)
+        plusT3 = true;
+    if (_theta[5] >= 0)
+        plusT5 = true;
+
+    int number = (plusT1 ? 4 : 0) + (plusT3 ? 2 : 0) + (plusT5 ? 1 : 0) + 1;
+
+    return number;
 }

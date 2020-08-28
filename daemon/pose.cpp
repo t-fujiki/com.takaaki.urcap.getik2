@@ -30,6 +30,10 @@ Pose::Pose(double *pose)
     this->rz = pose[5];
 }
 
+Pose::Pose()
+{
+}
+
 vector<double> Pose::toVector()
 {
     vector<double> vector;
@@ -44,16 +48,3 @@ vector<double> Pose::toVector()
     return vector;
 }
 
-double *Pose::toDoubleArray()
-{
-    double pose[6];
-
-    pose[0] = x;
-    pose[1] = y;
-    pose[2] = z;
-    pose[3] = rx;
-    pose[4] = ry;
-    pose[5] = rz;
-
-    return pose;
-}

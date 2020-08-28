@@ -4,7 +4,7 @@ def set_ur_type(ur):
   getik2.set_ur_type(ur)
 end
 
-def set_pose(p):
+def set_tcp_pose(p):
   x = p[0]
   y = p[1]
   z = p[2]
@@ -12,11 +12,11 @@ def set_pose(p):
   ry = p[4]
   rz = p[5]
 
-  getik2.set_pose(x, y, z, rx, ry, rz)
+  getik2.set_tcp_pose(x, y, z, rx, ry, rz)
 
 end
 
-def set_offset():
+def set_tcp_offset():
   p = get_tcp_offset()
 
   x = p[0]
@@ -26,23 +26,45 @@ def set_offset():
   ry = p[4]
   rz = p[5]
 
-  getik2.set_offset(x, y, z, rx, ry, rz)
+  getik2.set_tcp_offset(x, y, z, rx, ry, rz)
 
 end
 
-def set_calibration(d_a1, d_a2, d_a3, d_a4, d_a5, d_a6, d_d1, d_d2, d_d3, d_d4, d_d5, d_d6, d_alpha1, d_alpha2, d_alpha3, d_alpha4, d_alpha5, d_alpha6, d_theta1, d_theta2, d_theta3, d_theta4, d_theta5, d_theta6):
+def set_calibration_a(d1, d2, d3, d4, d5, d6):
 
-  getik2.set_calibration(d_a1, d_a2, d_a3, d_a4, d_a5, d_a6, d_d1, d_d2, d_d3, d_d4, d_d5, d_d6, d_alpha1, d_alpha2, d_alpha3, d_alpha4, d_alpha5, d_alpha6, d_theta1, d_theta2, d_theta3, d_theta4, d_theta5, d_theta6)
+  getik2.set_calibration_a(d1, d2, d3, d4, d5, d6)
+
+end
+
+def set_calibration_d(d1, d2, d3, d4, d5, d6):
+
+  getik2.set_calibration_d(d1, d2, d3, d4, d5, d6)
 
 end
 
 
-def get_angles(n):
-  return getik2.get_angles(n)
+def set_calibration_alpha(d1, d2, d3, d4, d5, d6):
+
+  getik2.set_calibration_alpha(d1, d2, d3, d4, d5, d6)
+
 end
 
-def get_angles_deg(n):
-  t = getik2.get_angles(n)
+def set_calibration_theta(d1, d2, d3, d4, d5, d6):
+
+  getik2.set_calibration_theta(d1, d2, d3, d4, d5, d6)
+
+end
+
+def get_analysis_angle(n):
+  t = getik2.get_analysis_angle(n)
+
+  p = p[r2d(t[0]), r2d(t[1]), r2d(t[2]), r2d(t[3]), r2d(t[4]), r2d(t[5])]
+
+  return p
+end
+
+def get_real_angle(n):
+  t = getik2.get_real_angle(n)
 
   p = p[r2d(t[0]), r2d(t[1]), r2d(t[2]), r2d(t[3]), r2d(t[4]), r2d(t[5])]
 
@@ -51,9 +73,5 @@ end
 
 def get_pattern(p):
   return getik2.get_pattern(p[0], p[1], p[2], p[3], p[4], p[5])
-end
-
-def get_pose(j):
-  return getik2.get_pose(j[0], j[1], j[2], j[3], j[4], j[5])
 end
 

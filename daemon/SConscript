@@ -1,11 +1,11 @@
 Import('env')
 
-HW_SOURCE = Split('''getik.cpp
+HW_SOURCE = Split('''analysisrobot.cpp
                      Data.cpp
                      dhparam.cpp
-                     iksolver.cpp
-                     fksolver.cpp
-                     jacobian.cpp
+                     getik.cpp
+                     pose.cpp
+                     realrobot.cpp
                      transmatrix.cpp
                      ''')
 
