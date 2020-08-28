@@ -10,6 +10,6 @@ private:
 public:
     AnalysisRobot(int ur, Pose tcp_pose, Pose tcp_offset);
     vector<double> solveIK(int num);
-    Pose solveFK(double *theta);
-    int getPattern(double *theta);
+    Pose solveFK(vector<double> theta);
+    int getPattern(vector<double> theta);
 };

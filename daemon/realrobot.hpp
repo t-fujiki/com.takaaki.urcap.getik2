@@ -11,15 +11,16 @@ private:
     Pose tcp_pose;
     Pose tcp_offset;
 
-    double *delta_a;
-    double *delta_d;
-    double *delta_alpha;
-    double *delta_theta;
+    vector<double> delta_a;
+    vector<double> delta_d;
+    vector<double> delta_alpha;
+    vector<double> delta_theta;
 
 public:
     RealRobot(int ur, Pose tcp_pose, Pose tcp_offset);
-    void setCalibrationConfig(double *delta_a, double *delta_d, double *delta_alpha, double *delta_theta);
-    Pose solveFK(double *theta);
-    Matrix6d getJacobian(double *theta);
-    Matrix6d getInverseOfJacobian(double *theta);
+    void setCalibrationConfig(vector<double> delta_a, vector<double> delta_d,
+                              vector<double> delta_alpha, vector<double> delta_theta);
+    Pose solveFK(vector<double> theta);
+    Matrix6d getJacobian(vector<double> theta);
+    Matrix6d getInverseOfJacobian(vector<double> theta);
 };

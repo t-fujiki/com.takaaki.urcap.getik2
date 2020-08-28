@@ -60,7 +60,7 @@ void Data::setTCPOffset(Pose tcp_offset)
   cout << "Rz:" << this->tcp_offset.rz << endl;
 }
 
-void Data::setCalibrationConfigA(double *delta_a)
+void Data::setCalibrationConfigA(vector<double> delta_a)
 {
   this->delta_a = delta_a;
 
@@ -69,7 +69,7 @@ void Data::setCalibrationConfigA(double *delta_a)
     cout << i + 1 << ":" << this->delta_a[i] << endl;
 }
 
-void Data::setCalibrationConfigD(double *delta_d)
+void Data::setCalibrationConfigD(vector<double> delta_d)
 {
   this->delta_d = delta_d;
 
@@ -78,7 +78,7 @@ void Data::setCalibrationConfigD(double *delta_d)
     cout << i + 1 << ":" << this->delta_d[i] << endl;
 }
 
-void Data::setCalibrationConfigAlpha(double *delta_alpha)
+void Data::setCalibrationConfigAlpha(vector<double> delta_alpha)
 {
   this->delta_alpha = delta_alpha;
 
@@ -87,7 +87,7 @@ void Data::setCalibrationConfigAlpha(double *delta_alpha)
     cout << i + 1 << ":" << this->delta_alpha[i] << endl;
 }
 
-void Data::setCalibrationConfigTheta(double *delta_theta)
+void Data::setCalibrationConfigTheta(vector<double> delta_theta)
 {
   this->delta_theta = delta_theta;
 
@@ -108,53 +108,47 @@ vector<double> Data::getAnalysisAngle(int num)
 vector<double> Data::getRealAngle(int num)
 {
   //解析解を取得する。
-  vector<double> theta_a_vector = getAnalysisAngle(num);
-
-  double theta_a[7];
-
-  for (int i = 0; i < 7; i++)
-    theta_a[i] = theta_a_vector.at(i);
+  vector<double> theta = getAnalysisAngle(num);
 
   RealRobot realRB(ur, tcp_pose, tcp_offset);
 
-  for (int i = 1; i < 7; i++)
-  {
-    cout << "a:" << delta_a[i] << endl;
-    cout << "d:" << delta_d[i] << endl;
-    cout << "alpha:" << delta_alpha[i] << endl;
-    cout << "theta:" << delta_theta[i] << endl;
-  }
+  //キャリブレーションデータをセットする。
   realRB.setCalibrationConfig(delta_a, delta_d, delta_alpha, delta_theta);
 
   //解析解から実ロボットのTCPを計算し、qnearの代わりとする。
-  Pose qnear = realRB.solveFK(theta_a);
+  Pose qnear = realRB.solveFK(theta);
+
+  cout << "<Solved qnear TCP>" << endl;
+  cout << "X:" << qnear.x << endl;
+  cout << "Y:" << qnear.y << endl;
+  cout << "Z:" << qnear.z << endl;
+  cout << "Rx:" << qnear.rx << endl;
+  cout << "Ry:" << qnear.ry << endl;
+  cout << "Rz:" << qnear.rz << endl;
 
   //実TCPとqnearの差からΔqを計算する。
   Vector6d delta_q;
   for (int i = 0; i < 6; i++)
-    delta_q(i) = tcp_pose.toVector().at(i) - qnear.toVector().at(i);
+    delta_q(i) = tcp_pose.toVector()[i] - qnear.toVector()[i];
 
   //ヤコビアン行列
-  Matrix6d invJacobian = realRB.getInverseOfJacobian(theta_a);
+  Matrix6d invJacobian = realRB.getInverseOfJacobian(theta);
 
   //実角度解を計算する。
-  Vector6d real_theta = invJacobian * delta_q;
-
-  vector<double> theta_vector;
-  theta_vector.push_back(0);
+  Vector6d d_theta = invJacobian * delta_q;
 
   for (int i = 1; i < 7; i++)
-    theta_vector.push_back(real_theta(i - 1));
+    theta[i] += d_theta(i - 1);
 
   cout << "<Solved real solution>" << endl;
 
   for (int i = 1; i < 7; i++)
-    cout << i << ":" << theta_vector.at(i);
+    cout << i << ":" << theta[i] << endl;
 
-  return theta_vector;
+  return theta;
 }
 
-int Data::getPattern(double *theta)
+int Data::getPattern(vector<double> theta)
 {
   AnalysisRobot analysisRB(ur, tcp_pose, tcp_offset);
 

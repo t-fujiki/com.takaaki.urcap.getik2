@@ -31,13 +31,13 @@ SetTCPPose::SetTCPPose(Data *data) : data(data)
 
 void SetTCPPose::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const retvalP)
 {
-  vector<double> pose_vector;
+  vector<double> pose;
   for (int i = 0; i < 6; i++)
-    pose_vector.push_back(paramList.getDouble(i));
+    pose.push_back(paramList.getDouble(i));
 
   paramList.verifyEnd(6);
 
-  Pose tcp_pose(pose_vector);
+  Pose tcp_pose(pose);
   data->setTCPPose(tcp_pose);
 
   *retvalP = xmlrpc_c::value_string("done"); // XML-RPC void return values are an extension to the protocol and not always available or compatible between languages.
@@ -52,13 +52,13 @@ SetTCPOffset::SetTCPOffset(Data *data) : data(data)
 
 void SetTCPOffset::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const retvalP)
 {
-  vector<double> pose_vector;
+  vector<double> pose;
   for (int i = 0; i < 6; i++)
-    pose_vector.push_back(paramList.getDouble(i));
+    pose.push_back(paramList.getDouble(i));
 
   paramList.verifyEnd(6);
 
-  Pose tcp_offset(pose_vector);
+  Pose tcp_offset(pose);
   data->setTCPOffset(tcp_offset);
 
   *retvalP = xmlrpc_c::value_string("done"); // XML-RPC void return values are an extension to the protocol and not always available or compatible between languages.
@@ -73,10 +73,11 @@ SetCalibrationConfigA::SetCalibrationConfigA(Data *data) : data(data)
 
 void SetCalibrationConfigA::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const retvalP)
 {
-  vector<double> delta_vector;
-  delta_vector.push_back(0);
+  vector<double> delta;
+  delta.push_back(0);
+
   for (int i = 1; i < 7; i++)
-    delta_vector.push_back() paramList.getDouble(i - 1));
+    delta.push_back(paramList.getDouble(i - 1));
 
   paramList.verifyEnd(6);
 
@@ -94,11 +95,11 @@ SetCalibrationConfigD::SetCalibrationConfigD(Data *data) : data(data)
 
 void SetCalibrationConfigD::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const retvalP)
 {
-  double delta[7];
-  delta[0] = 0;
+  vector<double> delta;
+  delta.push_back(0);
 
   for (int i = 1; i < 7; i++)
-    delta[i] = paramList.getDouble(i - 1);
+    delta.push_back(paramList.getDouble(i - 1));
 
   paramList.verifyEnd(6);
 
@@ -116,11 +117,11 @@ SetCalibrationConfigAlpha::SetCalibrationConfigAlpha(Data *data) : data(data)
 
 void SetCalibrationConfigAlpha::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const retvalP)
 {
-  double delta[7];
-  delta[0] = 0;
+  vector<double> delta;
+  delta.push_back(0);
 
   for (int i = 1; i < 7; i++)
-    delta[i] = paramList.getDouble(i - 1);
+    delta.push_back(paramList.getDouble(i - 1));
 
   paramList.verifyEnd(6);
 
@@ -138,11 +139,11 @@ SetCalibrationConfigTheta::SetCalibrationConfigTheta(Data *data) : data(data)
 
 void SetCalibrationConfigTheta::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const retvalP)
 {
-  double delta[7];
-  delta[0] = 0;
+  vector<double> delta;
+  delta.push_back(0);
 
   for (int i = 1; i < 7; i++)
-    delta[i] = paramList.getDouble(i - 1);
+    delta.push_back(paramList.getDouble(i - 1));
 
   paramList.verifyEnd(6);
 
@@ -163,14 +164,14 @@ void GetAnalysisAngle::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::v
   int const num(paramList.getInt(0));
   paramList.verifyEnd(1);
 
-  vector<double> solved_theta = data->getAnalysisAngle(num);
+  vector<double> theta = data->getAnalysisAngle(num);
 
-  std::vector<xmlrpc_c::value> theta_vector;
+  std::vector<xmlrpc_c::value> res_theta;
 
   for (int i = 0; i < 6; i++)
-    theta_vector.push_back(xmlrpc_c::value_double(solved_theta.at(i + 1)));
+    res_theta.push_back(xmlrpc_c::value_double(theta[i + 1]));
 
-  *retvalP = xmlrpc_c::value_array(theta_vector);
+  *retvalP = xmlrpc_c::value_array(res_theta);
 }
 
 /*---------------------------
@@ -185,14 +186,14 @@ void GetRealAngle::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value
   int const num(paramList.getInt(0));
   paramList.verifyEnd(1);
 
-  vector<double> solved_theta = data->getRealAngle(num);
+  vector<double> theta = data->getRealAngle(num);
 
-  std::vector<xmlrpc_c::value> theta_vector;
+  std::vector<xmlrpc_c::value> res_theta;
 
   for (int i = 0; i < 6; i++)
-    theta_vector.push_back(xmlrpc_c::value_double(solved_theta.at(i + 1)));
+    res_theta.push_back(xmlrpc_c::value_double(theta[i + 1]));
 
-  *retvalP = xmlrpc_c::value_array(theta_vector);
+  *retvalP = xmlrpc_c::value_array(res_theta);
 }
 
 /*---------------------------
@@ -204,14 +205,15 @@ GetPattern::GetPattern(Data *data) : data(data)
 
 void GetPattern::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const retvalP)
 {
-  vector<double> theta_vector;
+  vector<double> theta;
+  theta.push_back(0);
 
   for (int i = 1; i < 7; i++)
-    theta_vector.push_back(paramList.getDouble(i - 1));
+    theta.push_back(paramList.getDouble(i - 1));
 
   paramList.verifyEnd(6);
 
-  data->getPattern(theta_vector);
+  data->getPattern(theta);
 
   *retvalP = xmlrpc_c::value_int(data->getPattern(theta));
 }

@@ -30,10 +30,6 @@ vector<double> AnalysisRobot::solveIK(int num)
     TransMatrix t_offset(tcp_offset);
     TransMatrix t06 = t_tcp * t_offset.inverse();
 
-    cout << t_tcp.entry << endl;
-    cout << t_offset.entry << endl;
-    cout << t06.entry << endl;
-
     double *d = param.d;
     double *a = param.a;
     double *alpha = param.alpha;
@@ -128,15 +124,13 @@ vector<double> AnalysisRobot::solveIK(int num)
     return theta_vector;
 }
 
-Pose AnalysisRobot::solveFK(double *theta)
+Pose AnalysisRobot::solveFK(vector<double> theta)
 {
     DHParam param(ur);
 
     TransMatrix t[7];
     for (int i = 1; i < 7; i++)
     {
-        cout << i << ":" << theta[i] << endl;
-
         t[i] = TransMatrix(param.a[i], param.d[i], param.alpha[i], theta[i]);
     }
 
@@ -160,12 +154,12 @@ Pose AnalysisRobot::solveFK(double *theta)
     double angle = acos((r11 + r22 + r33 - 1) / 2);
 
     double nx, ny, nz;
-    if (abs(sin(angle)) > 10E-6)
+    if (abs(sin(angle)) > 1E-2)
     {
         nx = (r32 - r23) / (2 * sin(angle));
         ny = (r13 - r31) / (2 * sin(angle));
         nz = (r21 - r12) / (2 * sin(angle));
-
+        /*
         if (nx < 0)
         {
             angle = -acos((r11 + r22 + r33 - 1) / 2) + 2 * M_PI;
@@ -173,6 +167,7 @@ Pose AnalysisRobot::solveFK(double *theta)
             ny = (r13 - r31) / (2 * sin(angle));
             nz = (r21 - r12) / (2 * sin(angle));
         }
+        */
     }
     else
     {
@@ -198,15 +193,13 @@ Pose AnalysisRobot::solveFK(double *theta)
     return tcp;
 }
 
-int AnalysisRobot::getPattern(double *theta)
+int AnalysisRobot::getPattern(vector<double> theta)
 {
-    double _theta[7];
-
     for (int i = 1; i < 7; i++)
     {
         double s = sin(theta[i]);
         double c = cos(theta[i]);
-        _theta[i] = atan2(s, c);
+        theta[i] = atan2(s, c);
     }
 
     bool plusT5 = false;
@@ -218,7 +211,7 @@ int AnalysisRobot::getPattern(double *theta)
     TransMatrix t[7];
     for (int i = 1; i < 7; i++)
     {
-        t[i] = TransMatrix(param.a[i], param.d[i], param.alpha[i], _theta[i]);
+        t[i] = TransMatrix(param.a[i], param.d[i], param.alpha[i], theta[i]);
     }
 
     TransMatrix t_flange = t[1] * t[2] * t[3] * t[4] * t[5] * t[6];
@@ -241,15 +234,15 @@ int AnalysisRobot::getPattern(double *theta)
 
     double phi = atan2(p05y, p05x);
 
-    double s = sin(_theta[1] - phi);
-    double c = cos(_theta[1] - phi);
+    double s = sin(theta[1] - phi);
+    double c = cos(theta[1] - phi);
     double q = abs(atan2(s, c));
 
     if (q < M_PI / 2)
         plusT1 = true;
-    if (_theta[3] >= 0)
+    if (theta[3] >= 0)
         plusT3 = true;
-    if (_theta[5] >= 0)
+    if (theta[5] >= 0)
         plusT5 = true;
 
     int number = (plusT1 ? 4 : 0) + (plusT3 ? 2 : 0) + (plusT5 ? 1 : 0) + 1;

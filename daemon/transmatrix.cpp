@@ -6,8 +6,6 @@ TransMatrix::TransMatrix(Pose pose)
 {
     double angle = sqrt(pose.rx * pose.rx + pose.ry * pose.ry + pose.rz * pose.rz);
 
-    cout << "Sin(angle):" << sin(angle) << endl;
-
     double r11 = 1;
     double r12 = 0;
     double r13 = 0;
@@ -104,13 +102,6 @@ TransMatrix TransMatrix::operator*(const TransMatrix &tm)
 
     matrix.entry = this->entry * tm.entry;
 
-    /*
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 4; j++)
-            for (int k = 0; k < 4; k++)
-                matrix.entry[i][j] += entry[i][k] * tm.entry[k][j];
-    */
-
     return matrix;
 }
 
@@ -121,46 +112,6 @@ TransMatrix TransMatrix::inverse()
     invMatrix.entry = this->entry.inverse();
 
     return invMatrix;
-
-    /*
-    double inv[4][4];
-    double tmp[4][4];
-
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-            tmp[i][j] = entry[i][j];
-            inv[i][j] = (i == j) ? 1.0 : 0.0;
-        }
-    }
-
-    for (int i = 0; i < 4; i++)
-    {
-        double buf = 1 / tmp[i][i];
-        for (int j = 0; j < 4; j++)
-        {
-            tmp[i][j] *= buf;
-            inv[i][j] *= buf;
-        }
-        for (int j = 0; j < 4; j++)
-        {
-            if (i != j)
-            {
-                buf = tmp[j][i];
-                for (int k = 0; k < 4; k++)
-                {
-                    tmp[j][k] -= tmp[i][k] * buf;
-                    inv[j][k] -= inv[i][k] * buf;
-                }
-            }
-        }
-    }
-
-    for (int i = 0; i < 4; i++)
-        for (int j = 0; j < 4; j++)
-            invMatrix.setEntry(i, j, inv[i][j]);
-            */
 }
 
 double TransMatrix::setEntry(int i, int j, double value)
