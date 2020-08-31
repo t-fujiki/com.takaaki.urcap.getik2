@@ -2,7 +2,9 @@
 #include <sstream>
 #include <string>
 #include "Data.hpp"
-#include "ur.hpp"
+#include "UR.hpp"
+#include "AnalysisModel.hpp"
+#include "RealRobot.hpp"
 
 using namespace std;
 
@@ -98,7 +100,7 @@ void Data::setCalibrationConfigTheta(vector<double> delta_theta)
 
 vector<double> Data::getAnalysisAngle(int num)
 {
-  AnalysisRobot analysisRB(ur, tcp_pose, tcp_offset);
+  AnalysisModel analysisRB(ur, tcp_pose, tcp_offset);
 
   vector<double> theta_vector = analysisRB.solveIK(num);
 
@@ -115,42 +117,22 @@ vector<double> Data::getRealAngle(int num)
   //キャリブレーションデータをセットする。
   realRB.setCalibrationConfig(delta_a, delta_d, delta_alpha, delta_theta);
 
-  //解析解から実ロボットのTCPを計算し、qnearの代わりとする。
-  Pose qnear = realRB.solveFK(theta);
-
-  cout << "<Solved qnear TCP>" << endl;
-  cout << "X:" << qnear.x << endl;
-  cout << "Y:" << qnear.y << endl;
-  cout << "Z:" << qnear.z << endl;
-  cout << "Rx:" << qnear.rx << endl;
-  cout << "Ry:" << qnear.ry << endl;
-  cout << "Rz:" << qnear.rz << endl;
-
-  //実TCPとqnearの差からΔqを計算する。
-  Vector6d delta_q;
-  for (int i = 0; i < 6; i++)
-    delta_q(i) = tcp_pose.toVector()[i] - qnear.toVector()[i];
-
-  //ヤコビアン行列
-  Matrix6d invJacobian = realRB.getInverseOfJacobian(theta);
-
-  //実角度解を計算する。
-  Vector6d d_theta = invJacobian * delta_q;
-
-  for (int i = 1; i < 7; i++)
-    theta[i] += d_theta(i - 1);
-
-  cout << "<Solved real solution>" << endl;
-
-  for (int i = 1; i < 7; i++)
-    cout << i << ":" << theta[i] << endl;
+  theta = realRB.solveIK(theta);
 
   return theta;
 }
 
 int Data::getPattern(vector<double> theta)
 {
-  AnalysisRobot analysisRB(ur, tcp_pose, tcp_offset);
+  AnalysisModel analysisRB(ur, tcp_pose, tcp_offset);
 
   return analysisRB.getPattern(theta);
+}
+
+vector<double> Data::getPose(vector<double> theta)
+{
+  RealRobot realRB(ur, tcp_pose, tcp_offset);
+  realRB.setCalibrationConfig(delta_a, delta_d, delta_alpha, delta_theta);
+
+  return realRB.solveFK(theta).toVector();
 }

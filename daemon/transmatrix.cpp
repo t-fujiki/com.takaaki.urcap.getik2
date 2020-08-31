@@ -1,6 +1,6 @@
 #include <cstdlib>
 #include <cmath>
-#include "transmatrix.hpp"
+#include "TransMatrix.hpp"
 
 TransMatrix::TransMatrix(Pose pose)
 {
@@ -16,7 +16,7 @@ TransMatrix::TransMatrix(Pose pose)
     double r32 = 0;
     double r33 = 1;
 
-    if (abs(sin(angle)) > 10E-10)
+    if (abs(sin(angle)) > 10E-6)
     {
         double nx = pose.rx / angle;
         double ny = pose.ry / angle;
@@ -114,12 +114,7 @@ TransMatrix TransMatrix::inverse()
     return invMatrix;
 }
 
-double TransMatrix::setEntry(int i, int j, double value)
-{
-    entry(i, j) = value;
-}
-
-double TransMatrix::getEntry(int i, int j)
+double TransMatrix::getEntry(int i, int j) const
 {
     return entry(i, j);
 }

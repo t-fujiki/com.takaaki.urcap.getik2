@@ -1,12 +1,12 @@
 Import('env')
 
-HW_SOURCE = Split('''analysisrobot.cpp
+HW_SOURCE = Split('''AnalysisModel.cpp
                      Data.cpp
-                     dhparam.cpp
-                     getik.cpp
-                     pose.cpp
-                     realrobot.cpp
-                     transmatrix.cpp
+                     DHParam.cpp
+                     GetIK.cpp
+                     Pose.cpp
+                     RealRobot.cpp
+                     TransMatrix.cpp
                      ''')
 
 HW_CPPPATH = Split('''.

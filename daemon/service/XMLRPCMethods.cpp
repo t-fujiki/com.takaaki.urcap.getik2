@@ -1,7 +1,7 @@
 #include "XMLRPCMethods.hpp"
 
 #include <iostream>
-#include "pose.hpp"
+#include "Pose.hpp"
 
 using namespace std;
 
@@ -213,7 +213,32 @@ void GetPattern::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *
 
   paramList.verifyEnd(6);
 
-  data->getPattern(theta);
-
   *retvalP = xmlrpc_c::value_int(data->getPattern(theta));
+}
+
+/*---------------------------
+---------------------------*/
+GetPose::GetPose(Data *data) : data(data)
+{
+  this->_signature = "A:dddddd"; // RPC method signature, which is not mandatory for basic operation, see http://xmlrpc-c.sourceforge.net/doc/libxmlrpc_server++.html#howto
+}
+
+void GetPose::execute(xmlrpc_c::paramList const &paramList, xmlrpc_c::value *const retvalP)
+{
+  vector<double> theta;
+  theta.push_back(0);
+
+  for (int i = 1; i < 7; i++)
+    theta.push_back(paramList.getDouble(i - 1));
+
+  paramList.verifyEnd(6);
+
+  vector<double> pose = data->getPose(theta);
+
+  std::vector<xmlrpc_c::value> res_pose;
+
+  for (int i = 0; i < 6; i++)
+    res_pose.push_back(xmlrpc_c::value_double(pose[i]));
+
+  *retvalP = xmlrpc_c::value_array(res_pose);
 }

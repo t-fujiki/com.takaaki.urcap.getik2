@@ -1,4 +1,4 @@
-#include "getik.hpp"
+#include "GetIK.hpp"
 
 #include <iostream>
 #include <unistd.h>

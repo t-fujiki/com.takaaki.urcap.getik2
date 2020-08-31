@@ -1,6 +1,8 @@
+#pragma once
+
 #include <iostream>
 #include <vector>
-#include "pose.hpp"
+#include "Pose.hpp"
 #include "Eigen/Dense"
 using namespace Eigen;
 
@@ -16,6 +18,5 @@ public:
     ~TransMatrix();
     TransMatrix operator*(const TransMatrix &tm);
     TransMatrix inverse();
-    double setEntry(int i, int j, double value);
-    double getEntry(int i, int j);
+    double getEntry(int i, int j) const;
 };

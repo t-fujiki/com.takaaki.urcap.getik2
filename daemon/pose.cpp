@@ -1,4 +1,4 @@
-#include "pose.hpp"
+#include "Pose.hpp"
 
 Pose::Pose(double x, double y, double z, double rx, double ry, double rz)
 {
@@ -47,4 +47,3 @@ vector<double> Pose::toVector()
 
     return vector;
 }
-

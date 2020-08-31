@@ -1,18 +1,18 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
-#include "analysisrobot.hpp"
-#include "dhparam.hpp"
-#include "transmatrix.hpp"
+#include "AnalysisModel.hpp"
+#include "DHParam.hpp"
+#include "TransMatrix.hpp"
 
-AnalysisRobot::AnalysisRobot(int ur, Pose tcp_pose, Pose tcp_offset)
+AnalysisModel::AnalysisModel(int ur, Pose tcp_pose, Pose tcp_offset)
 {
     this->ur = ur;
     this->tcp_pose = tcp_pose;
     this->tcp_offset = tcp_offset;
 }
 
-vector<double> AnalysisRobot::solveIK(int num)
+vector<double> AnalysisModel::solveIK(int num) const
 {
     double theta[7];
     theta[0] = 0;
@@ -124,7 +124,7 @@ vector<double> AnalysisRobot::solveIK(int num)
     return theta_vector;
 }
 
-Pose AnalysisRobot::solveFK(vector<double> theta)
+Pose AnalysisModel::solveFK(vector<double> const &theta) const
 {
     DHParam param(ur);
 
@@ -159,15 +159,6 @@ Pose AnalysisRobot::solveFK(vector<double> theta)
         nx = (r32 - r23) / (2 * sin(angle));
         ny = (r13 - r31) / (2 * sin(angle));
         nz = (r21 - r12) / (2 * sin(angle));
-        /*
-        if (nx < 0)
-        {
-            angle = -acos((r11 + r22 + r33 - 1) / 2) + 2 * M_PI;
-            nx = (r32 - r23) / (2 * sin(angle));
-            ny = (r13 - r31) / (2 * sin(angle));
-            nz = (r21 - r12) / (2 * sin(angle));
-        }
-        */
     }
     else
     {
@@ -193,13 +184,15 @@ Pose AnalysisRobot::solveFK(vector<double> theta)
     return tcp;
 }
 
-int AnalysisRobot::getPattern(vector<double> theta)
+int AnalysisModel::getPattern(vector<double> const &theta) const
 {
+    vector<double> _theta = theta;
+
     for (int i = 1; i < 7; i++)
     {
         double s = sin(theta[i]);
         double c = cos(theta[i]);
-        theta[i] = atan2(s, c);
+        _theta[i] = atan2(s, c);
     }
 
     bool plusT5 = false;
@@ -211,7 +204,7 @@ int AnalysisRobot::getPattern(vector<double> theta)
     TransMatrix t[7];
     for (int i = 1; i < 7; i++)
     {
-        t[i] = TransMatrix(param.a[i], param.d[i], param.alpha[i], theta[i]);
+        t[i] = TransMatrix(param.a[i], param.d[i], param.alpha[i], _theta[i]);
     }
 
     TransMatrix t_flange = t[1] * t[2] * t[3] * t[4] * t[5] * t[6];

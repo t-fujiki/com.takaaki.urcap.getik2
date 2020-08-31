@@ -1,7 +1,7 @@
 #include <cstdlib>
-#include <math.h>
+#include <cmath>
 
-#include "dhparam.hpp"
+#include "DHParam.hpp"
 #include "ur.hpp"
 
 DHParam::DHParam(int ur)

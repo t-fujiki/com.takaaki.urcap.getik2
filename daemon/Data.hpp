@@ -1,11 +1,11 @@
 #pragma once
 
 #include <iostream>
-#include "analysisrobot.hpp"
-#include "realrobot.hpp"
-using namespace std;
+#include "Eigen/Dense"
+#include "Pose.hpp"
 
-typedef Matrix<double, 6, 1> Vector6d;
+using namespace std;
+using namespace Eigen;
 
 /**
  * @brief Simple example data container
@@ -37,4 +37,5 @@ public:
   vector<double> getAnalysisAngle(int num);
   vector<double> getRealAngle(int num);
   int getPattern(vector<double> theta);
+  vector<double> getPose(vector<double> theta);
 };

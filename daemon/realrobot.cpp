@@ -1,9 +1,9 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
-#include "realrobot.hpp"
-#include "dhparam.hpp"
-#include "transmatrix.hpp"
+#include "RealRobot.hpp"
+#include "DHParam.hpp"
+#include "TransMatrix.hpp"
 
 RealRobot::RealRobot(int ur, Pose tcp_pose, Pose tcp_offset)
 {
@@ -21,7 +21,48 @@ void RealRobot::setCalibrationConfig(vector<double> delta_a, vector<double> delt
     this->delta_theta = delta_theta;
 }
 
-Pose RealRobot::solveFK(vector<double> theta)
+Matrix6d RealRobot::getJacobian(vector<double> const &theta) const
+{
+    Matrix6d jacobian;
+
+    double dt = 1E-6;
+
+    for (int j = 1; j < 7; j++)
+    {
+        vector<double> theta_p = theta;
+        vector<double> theta_m = theta;
+
+        theta_p.at(j) = theta.at(j) + dt;
+        theta_m.at(j) = theta.at(j) - dt;
+
+        Pose tcp_p = solveFK(theta_p);
+        Pose tcp_m = solveFK(theta_m);
+
+        for (int i = 0; i < 6; i++)
+        {
+            jacobian(i, j - 1) = (tcp_p.toVector()[i] - tcp_m.toVector()[i]) / (2 * dt);
+        }
+    }
+
+    cout << "<Solved jacobian matrix>" << endl;
+    cout << jacobian << endl;
+
+    return jacobian;
+}
+
+Matrix6d RealRobot::getInverseOfJacobian(vector<double> const &theta) const
+{
+    Matrix6d jacobian = getJacobian(theta);
+
+    Matrix6d inv = jacobian.inverse();
+
+    cout << "<Solved jacobian inverse matrix>" << endl;
+    cout << inv << endl;
+
+    return inv;
+}
+
+Pose RealRobot::solveFK(vector<double> const &theta) const
 {
     DHParam param(ur);
 
@@ -57,15 +98,6 @@ Pose RealRobot::solveFK(vector<double> theta)
         nx = (r32 - r23) / (2 * sin(angle));
         ny = (r13 - r31) / (2 * sin(angle));
         nz = (r21 - r12) / (2 * sin(angle));
-        /*
-        if (nx < 0)
-        {
-            angle = -acos((r11 + r22 + r33 - 1) / 2) + 2 * M_PI;
-            nx = (r32 - r23) / (2 * sin(angle));
-            ny = (r13 - r31) / (2 * sin(angle));
-            nz = (r21 - r12) / (2 * sin(angle));
-        }
-        */
     }
     else
     {
@@ -82,41 +114,40 @@ Pose RealRobot::solveFK(vector<double> theta)
     return tcp;
 }
 
-Matrix6d RealRobot::getJacobian(vector<double> theta)
+vector<double> RealRobot::solveIK(vector<double> const &theta) const
 {
-    Matrix6d jacobian;
+    //解析解から実ロボットのTCPを計算し、qnearの代わりとする。
+    Pose near_pose = solveFK(theta);
 
-    double dt = 1E-10;
+    cout << "<Solved qnear TCP>" << endl;
+    cout << "X:" << near_pose.x << endl;
+    cout << "Y:" << near_pose.y << endl;
+    cout << "Z:" << near_pose.z << endl;
+    cout << "Rx:" << near_pose.rx << endl;
+    cout << "Ry:" << near_pose.ry << endl;
+    cout << "Rz:" << near_pose.rz << endl;
 
-    for (int j = 1; j < 7; j++)
-    {
-        vector<double> theta_p = theta;
-        vector<double> theta_m = theta;
+    //実TCPとqnearの差からΔqを計算する。
+    Pose tartget = tcp_pose;
+    Vector6d delta_q;
+    for (int i = 0; i < 6; i++)
+        delta_q(i) = tartget.toVector()[i] - near_pose.toVector()[i];
 
-        theta_p.at(j) = theta.at(j) + dt;
-        theta_m.at(j) = theta.at(j) - dt;
+    //ヤコビアン行列
+    Matrix6d invJacobian = getInverseOfJacobian(theta);
 
-        Pose tcp_p = solveFK(theta_p);
-        Pose tcp_m = solveFK(theta_m);
+    //実角度解を計算する。
+    Vector6d d_theta = invJacobian * delta_q;
 
-        for (int i = 0; i < 6; i++)
-            jacobian(i, j - 1) = (tcp_p.toVector()[i] - tcp_m.toVector()[i]) / (2 * dt);
-    }
+    vector<double> solve_theta = theta;
 
-    cout << "<Solved jacobian matrix>" << endl;
-    cout << jacobian << endl;
+    for (int i = 1; i < 7; i++)
+        solve_theta[i] += d_theta(i - 1);
 
-    return jacobian;
-}
+    cout << "<Solved real solution>" << endl;
 
-Matrix6d RealRobot::getInverseOfJacobian(vector<double> theta)
-{
-    Matrix6d jacobian = getJacobian(theta);
+    for (int i = 1; i < 7; i++)
+        cout << i << ":" << solve_theta[i] << endl;
 
-    Matrix6d inv = jacobian.inverse();
-
-    cout << "<Solved jacobian inverse matrix>" << endl;
-    cout << inv << endl;
-
-    return inv;
+    return solve_theta;
 }

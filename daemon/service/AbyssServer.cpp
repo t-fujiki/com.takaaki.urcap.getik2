@@ -25,6 +25,7 @@ AbyssServer::AbyssServer(Data *data) : data(data)
   serviceRegistry.addMethod("get_analysis_angle", new GetAnalysisAngle(data));
   serviceRegistry.addMethod("get_real_angle", new GetRealAngle(data));
   serviceRegistry.addMethod("get_pattern", new GetPattern(data));
+  serviceRegistry.addMethod("get_pose", new GetPose(data));
 }
 
 AbyssServer::~AbyssServer()
