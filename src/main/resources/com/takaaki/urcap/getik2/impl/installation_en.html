@@ -13,57 +13,42 @@
             font-size: 15px;
         }
 
-        .width50px {
-            width: 50px;
-            height: 20px;
-        }
-
-        .width80px {
-            width: 80px;
-            height: 20px;
-        }
-
-        .width100px {
-            width: 100px;
-            height: 20px;
-        }
-
-        .width150px {
-            width: 150px;
-            height: 20px;
-        }
-
-        .width300px {
-            width: 300px;
-            height: 20px;
-        }
-
-        .verticalspace {
-            padding-top: 4px;
-            height: 30px;
-        }
-
-        .textcenter {
-            text-align: center;
-        }
-
-        .colorbutton {
-            width: 120px;
-            height: 25px;
-        }
-
-        .loadbutton {
-            width: 200px;
-            height: 25px;
-        }
     </style>
 </head>
 
 <body>
     <form>
-        <h1>Get Solution of Inverse Kinematics</h1>
+        <h1>Getting Solution of Inverse Kinematics</h1>
+        <h3>Input calibration data</h3>
+        
+        <div style="padding-top: 10px; padding-left: 10px;">
+            <div style="width:50px; display:inline-block">&#916; a &nbsp;</div>
+            <div style="width:300px; display:inline-block">
+            <Input type="text" id="inputDeltaA" style="width:300px; height:20px">
+            </div>
+        </div>
+        <div style="padding-top: 10px; padding-left: 10px;">
+            <div style="width:50px; display:inline-block">&#916; d &nbsp;</div>
+            <div style="width:300px; display:inline-block">
+            <Input type="text" id="inputDeltaD" style="width:300px; height:20px">
+            </div>
+        </div>
+        <div style="padding-top: 10px; padding-left: 10px;">
+            <div style="width:50px; display:inline-block">&#916; &#945; &nbsp;</div>
+            <div style="width:300px; display:inline-block">
+            <Input type="text" id="inputDeltaAlpha" style="width:300px; height:20px">
+            </div>
+        </div>
+        <div style="padding-top: 10px; padding-left: 10px;">
+            <div style="width:50px; display:inline-block">&#916; &#952; &nbsp;</div>
+            <div style="width:300px; display:inline-block">
+            <Input type="text" id="inputDeltaTheta" style="width:300px; height:20px">
+            </div>
+        </div>
+
         <p><label id="figure" /></p>
         <hr>
+
         <div style="display: inline-block; padding-left: 10px;">
         </div>
         <div style="display: inline-block">

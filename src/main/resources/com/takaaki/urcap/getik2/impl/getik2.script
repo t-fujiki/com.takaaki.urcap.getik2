@@ -1,9 +1,6 @@
-global getik2 = rpc_factory("xmlrpc", "http://127.0.0.1:56000/RPC2")
 
-PI = 3.1415926
-
-def set_ur_type(ur):
-  getik2.set_ur_type(ur)
+def set_ur_type(__ur):
+  getik2.set_ur_type(__ur)
 end
 
 def set_tcp_pose(__p):
@@ -57,16 +54,16 @@ def set_calibration_theta(d1, d2, d3, d4, d5, d6):
 
 end
 
-def get_analysis_angle(n):
-  __t = getik2.get_analysis_angle(n)
+def get_analysis_angle(__n):
+  __t = getik2.get_analysis_angle(__n)
 
   __p = [__t[0], __t[1], __t[2], __t[3], __t[4], __t[5]]
 
   return __p
 end
 
-def get_analysis_angle_deg(n):
-  __t = getik2.get_analysis_angle(n)
+def get_analysis_angle_deg(__n):
+  __t = getik2.get_analysis_angle(__n)
 
   __p = [r2d(__t[0]), r2d(__t[1]), r2d(__t[2]), r2d(__t[3]), r2d(__t[4]), r2d(__t[5])]
 
@@ -74,16 +71,16 @@ def get_analysis_angle_deg(n):
 end
 
 
-def get_real_angle(n):
-  __t = getik2.get_real_angle(n)
+def get_real_angle(__n):
+  __t = getik2.get_real_angle(__n)
 
   __p = [__t[0], __t[1], __t[2], __t[3], __t[4], __t[5]]
 
   return __p
 end
 
-def get_real_angle_deg(n):
-  __t = getik2.get_real_angle(n)
+def get_real_angle_deg(__n):
+  __t = getik2.get_real_angle(__n)
 
   __p = [r2d(__t[0]), r2d(__t[1]), r2d(__t[2]), r2d(__t[3]), r2d(__t[4]), r2d(__t[5])]
 
@@ -99,11 +96,11 @@ def get_pose(__t):
 end
 
 #__p:target pose
-#n:number of pattern
-def get_inverse_kin2(__p, n):
+#__n:number of pattern
+def get_inverse_kin2(__p, __n):
   set_tcp_pose(__p)
   set_tcp_offset()
-  __target = get_real_angle(n)
+  __target = get_real_angle(__n)
   __current = get_actual_joint_positions()
 
   i = 2
@@ -111,7 +108,7 @@ def get_inverse_kin2(__p, n):
     if (__target[i] - __current[i] > PI and __target[i] >= 0):
       __target[i] = __target[i] - 2 * PI
 
-    elif (__target[i] - __current[i] > -PI and __target[i] < 0):
+    elif (__target[i] - __current[i] < -PI and __target[i] < 0):
       __target[i] = __target[i] + 2 * PI
     end
 
@@ -126,3 +123,15 @@ def r2dA(__t):
   return [r2d(__t[0]), r2d(__t[1]), r2d(__t[2]), r2d(__t[3]), r2d(__t[4]), r2d(__t[5])]
 end
 
+
+
+global getik2 = rpc_factory("xmlrpc", "http://127.0.0.1:56000/RPC2")
+
+PI = 3.1415926
+_ur = {UR}
+set_ur_type(_ur)
+set_calibration_a({inputDeltaA})
+set_calibration_d({inputDeltaD})
+set_calibration_alpha({inputDeltaAlpha})
+set_calibration_theta({inputDeltaTheta})
+set_tcp_offset()

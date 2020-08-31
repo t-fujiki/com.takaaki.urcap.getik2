@@ -183,7 +183,7 @@
 		<dependency>
 			<groupId>com.ur.urcap</groupId>
 			<artifactId>api</artifactId>
-			<version>1.7.0</version>
+			<version>1.9.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
