@@ -15,7 +15,6 @@ AnalysisModel::AnalysisModel(int ur, Pose tcp_pose, Pose tcp_offset)
 vector<double> AnalysisModel::solveIK(int num) const
 {
     double theta[6];
-    theta[0] = 0;
 
     int number = num - 1;
 
@@ -30,10 +29,16 @@ vector<double> AnalysisModel::solveIK(int num) const
     TransMatrix t_offset(tcp_offset);
     TransMatrix t06 = t_tcp * t_offset.inverse();
 
-    double *d = param.d;
-    double *a = param.a;
-    double *alpha = param.alpha;
+    vector<double> d = param.d;
+    vector<double> a = param.a;
+    vector<double> alpha = param.alpha;
 
+    for (int i = 0; i < 6; i++)
+    {
+        cout << "d[" << i << "]:" << d[i] << endl;
+        cout << "a[" << i << "]:" << a[i] << endl;
+        cout << "alpha[" << i << "]:" << alpha[i] << endl;
+    }
     double nx = t06.getEntry(0, 0);
     double ny = t06.getEntry(1, 0);
     double nz = t06.getEntry(2, 0);
@@ -74,7 +79,7 @@ vector<double> AnalysisModel::solveIK(int num) const
     double n16z = nx * sin(theta[0]) - ny * cos(theta[0]);
     double o16z = ox * sin(theta[0]) - oy * cos(theta[0]);
 
-    theta[6] = atan2(-o16z / sin(theta[4]), n16z / sin(theta[4]));
+    theta[5] = atan2(-o16z / sin(theta[4]), n16z / sin(theta[4]));
 
     //---θ3
     double n05x = nx * cos(theta[5]) - ox * sin(theta[5]);
@@ -89,9 +94,9 @@ vector<double> AnalysisModel::solveIK(int num) const
     double p14y = o05z * d[4] + p05z - d[0];
 
     if (plusT3)
-        theta[2] = acos((pow(p14x, 2) + pow(p14y, 2) - pow(a[2], 2) - pow(a[2], 2)) / (2 * a[1] * a[2]));
+        theta[2] = acos((pow(p14x, 2) + pow(p14y, 2) - pow(a[1], 2) - pow(a[2], 2)) / (2 * a[1] * a[2]));
     else
-        theta[2] = -acos((pow(p14x, 2) + pow(p14y, 2) - pow(a[2], 2) - pow(a[2], 2)) / (2 * a[1] * a[2]));
+        theta[2] = -acos((pow(p14x, 2) + pow(p14y, 2) - pow(a[1], 2) - pow(a[2], 2)) / (2 * a[1] * a[2]));
 
     //---θ2
     double c2 = (a[2] * (p14x * cos(theta[2]) + p14y * sin(theta[2])) + a[1] * p14x) / (pow(p14x, 2) + pow(p14y, 2));
@@ -208,9 +213,9 @@ int AnalysisModel::getPattern(vector<double> const &theta) const
 
     TransMatrix t_flange = t[0] * t[1] * t[2] * t[3] * t[4] * t[5];
 
-    double *d = param.d;
-    double *a = param.a;
-    double *alpha = param.alpha;
+    vector<double> d = param.d;
+    vector<double> a = param.a;
+    vector<double> alpha = param.alpha;
 
     double ax = t_flange.getEntry(0, 2);
     double ay = t_flange.getEntry(1, 2);

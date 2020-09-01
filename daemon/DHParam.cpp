@@ -2,7 +2,7 @@
 #include <cmath>
 
 #include "DHParam.hpp"
-#include "ur.hpp"
+#include "UR.hpp"
 
 DHParam::DHParam(int ur)
 {

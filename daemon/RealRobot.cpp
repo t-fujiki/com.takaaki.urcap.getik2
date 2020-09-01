@@ -27,20 +27,20 @@ Matrix6d RealRobot::getJacobian(vector<double> const &theta) const
 
     double dt = 1E-6;
 
-    for (int j = 1; j < 7; j++)
+    for (int j = 0; j < 6; j++)
     {
         vector<double> theta_p = theta;
         vector<double> theta_m = theta;
 
-        theta_p.at(j) = theta.at(j) + dt;
-        theta_m.at(j) = theta.at(j) - dt;
+        theta_p[j] = theta[j] + dt;
+        theta_m[j] = theta[j] - dt;
 
         Pose tcp_p = solveFK(theta_p);
         Pose tcp_m = solveFK(theta_m);
 
         for (int i = 0; i < 6; i++)
         {
-            jacobian(i, j - 1) = (tcp_p.toVector()[i] - tcp_m.toVector()[i]) / (2 * dt);
+            jacobian(i, j) = (tcp_p.toVector()[i] - tcp_m.toVector()[i]) / (2 * dt);
         }
     }
 
@@ -66,15 +66,15 @@ Pose RealRobot::solveFK(vector<double> const &theta) const
 {
     DHParam param(ur);
 
-    TransMatrix t[7];
-    for (int i = 1; i < 7; i++)
+    TransMatrix t[6];
+    for (int i = 0; i < 6; i++)
     {
         t[i] = TransMatrix(param.a[i] + delta_a[i], param.d[i] + delta_d[i],
                            param.alpha[i] + delta_alpha[i], theta[i] + delta_theta[i]);
     }
 
     TransMatrix t_offset = TransMatrix(tcp_offset);
-    TransMatrix t_tcp = t[1] * t[2] * t[3] * t[4] * t[5] * t[6] * t_offset;
+    TransMatrix t_tcp = t[0] * t[1] * t[2] * t[3] * t[4] * t[5] * t_offset;
 
     double r11 = t_tcp.getEntry(0, 0);
     double r12 = t_tcp.getEntry(0, 1);
@@ -141,12 +141,12 @@ vector<double> RealRobot::solveIK(vector<double> const &theta) const
 
     vector<double> solve_theta = theta;
 
-    for (int i = 1; i < 7; i++)
-        solve_theta[i] += d_theta(i - 1);
+    for (int i = 0; i < 6; i++)
+        solve_theta[i] += d_theta(i);
 
     cout << "<Solved real solution>" << endl;
 
-    for (int i = 1; i < 7; i++)
+    for (int i = 0; i < 6; i++)
         cout << i << ":" << solve_theta[i] << endl;
 
     return solve_theta;

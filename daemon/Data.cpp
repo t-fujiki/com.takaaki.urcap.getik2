@@ -67,7 +67,7 @@ void Data::setCalibrationConfigA(vector<double> delta_a)
   this->delta_a = delta_a;
 
   cout << "<Delta A>" << endl;
-  for (int i = 1; i < 7; i++)
+  for (int i = 0; i < 6; i++)
     cout << i + 1 << ":" << this->delta_a[i] << endl;
 }
 
@@ -76,7 +76,7 @@ void Data::setCalibrationConfigD(vector<double> delta_d)
   this->delta_d = delta_d;
 
   cout << "<Delta D>" << endl;
-  for (int i = 1; i < 7; i++)
+  for (int i = 0; i < 6; i++)
     cout << i + 1 << ":" << this->delta_d[i] << endl;
 }
 
@@ -85,7 +85,7 @@ void Data::setCalibrationConfigAlpha(vector<double> delta_alpha)
   this->delta_alpha = delta_alpha;
 
   cout << "<Delta Alpha>" << endl;
-  for (int i = 1; i < 7; i++)
+  for (int i = 0; i < 6; i++)
     cout << i + 1 << ":" << this->delta_alpha[i] << endl;
 }
 
@@ -94,7 +94,7 @@ void Data::setCalibrationConfigTheta(vector<double> delta_theta)
   this->delta_theta = delta_theta;
 
   cout << "<Delta Theta>" << endl;
-  for (int i = 1; i < 7; i++)
+  for (int i = 0; i < 6; i++)
     cout << i + 1 << ":" << this->delta_theta[i] << endl;
 }
 
