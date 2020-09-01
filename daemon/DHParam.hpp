@@ -1,5 +1,9 @@
 #pragma once
 
+#include <iostream>
+#include <vector>
+using namespace std;
+
 class DHParam
 {
 private:
@@ -7,7 +11,7 @@ public:
     DHParam(int ur);
     ~DHParam();
 
-    double a[7];
-    double d[7];
-    double alpha[7];
+    vector<double> a;
+    vector<double> d;
+    vector<double> alpha;
 };

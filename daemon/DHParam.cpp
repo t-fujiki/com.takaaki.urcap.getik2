@@ -6,125 +6,126 @@
 
 DHParam::DHParam(int ur)
 {
+
     if (ur == UR::UR3)
     {
-        a[1] = 0;
-        a[2] = -0.24365;
-        a[3] = -0.21325;
-        a[4] = 0;
-        a[5] = 0;
-        a[6] = 0;
+        a.push_back(0);
+        a.push_back(-0.24365);
+        a.push_back(-0.21325);
+        a.push_back(0);
+        a.push_back(0);
+        a.push_back(0);
 
-        d[1] = 0.1519;
-        d[2] = 0;
-        d[3] = 0;
-        d[4] = 0.11235;
-        d[5] = 0.08535;
-        d[6] = 0.0819;
+        d.push_back(0.1519);
+        d.push_back(0);
+        d.push_back(0);
+        d.push_back(0.11235);
+        d.push_back(0.08535);
+        d.push_back(0.0819);
     }
     else if (ur == UR::UR5)
     {
-        a[1] = 0;
-        a[2] = -0.425;
-        a[3] = -0.39225;
-        a[4] = 0;
-        a[5] = 0;
-        a[6] = 0;
+        a.push_back(0);
+        a.push_back(-0.425);
+        a.push_back(-0.39225);
+        a.push_back(0);
+        a.push_back(0);
+        a.push_back(0);
 
-        d[1] = 0.089159;
-        d[2] = 0;
-        d[3] = 0;
-        d[4] = 0.10915;
-        d[5] = 0.09465;
-        d[6] = 0.0823;
+        d.push_back(0.089159);
+        d.push_back(0);
+        d.push_back(0);
+        d.push_back(0.10915);
+        d.push_back(0.09465);
+        d.push_back(0.0823);
     }
     else if (ur == UR::UR10)
     {
-        a[1] = 0;
-        a[2] = -0.612;
-        a[3] = -0.5723;
-        a[4] = 0;
-        a[5] = 0;
-        a[6] = 0;
+        a.push_back(0);
+        a.push_back(-0.612);
+        a.push_back(-0.5723);
+        a.push_back(0);
+        a.push_back(0);
+        a.push_back(0);
 
-        d[1] = 0.1273;
-        d[2] = 0;
-        d[3] = 0;
-        d[4] = 0.163941;
-        d[5] = 0.1157;
-        d[6] = 0.0922;
+        d.push_back(0.1273);
+        d.push_back(0);
+        d.push_back(0);
+        d.push_back(0.163941);
+        d.push_back(0.1157);
+        d.push_back(0.0922);
     }
     else if (ur == UR::UR3e)
     {
-        a[1] = 0;
-        a[2] = -0.24355;
-        a[3] = -0.2132;
-        a[4] = 0;
-        a[5] = 0;
-        a[6] = 0;
+        a.push_back(0);
+        a.push_back(-0.24355);
+        a.push_back(-0.2132);
+        a.push_back(0);
+        a.push_back(0);
+        a.push_back(0);
 
-        d[1] = 0.15185;
-        d[2] = 0;
-        d[3] = 0;
-        d[4] = 0.13105;
-        d[5] = 0.08535;
-        d[6] = 0.0921;
+        d.push_back(0.15185);
+        d.push_back(0);
+        d.push_back(0);
+        d.push_back(0.13105);
+        d.push_back(0.08535);
+        d.push_back(0.0921);
     }
     else if (ur == UR::UR5e)
     {
-        a[1] = 0;
-        a[2] = -0.425;
-        a[3] = -0.3922;
-        a[4] = 0;
-        a[5] = 0;
-        a[6] = 0;
+        a.push_back(0);
+        a.push_back(-0.425);
+        a.push_back(-0.3922);
+        a.push_back(0);
+        a.push_back(0);
+        a.push_back(0);
 
-        d[1] = 0.1625;
-        d[2] = 0;
-        d[3] = 0;
-        d[4] = 0.1333;
-        d[5] = 0.0997;
-        d[6] = 0.0996;
+        d.push_back(0.1625);
+        d.push_back(0);
+        d.push_back(0);
+        d.push_back(0.1333);
+        d.push_back(0.0997);
+        d.push_back(0.0996);
     }
     else if (ur == UR::UR10e)
     {
-        a[1] = 0;
-        a[2] = -0.6127;
-        a[3] = -0.57155;
-        a[4] = 0;
-        a[5] = 0;
-        a[6] = 0;
+        a.push_back(0);
+        a.push_back(-0.6127);
+        a.push_back(-0.57155);
+        a.push_back(0);
+        a.push_back(0);
+        a.push_back(0);
 
-        d[1] = 0.1807;
-        d[2] = 0;
-        d[3] = 0;
-        d[4] = 0.17415;
-        d[5] = 0.11985;
-        d[6] = 0.11655;
+        d.push_back(0.1807);
+        d.push_back(0);
+        d.push_back(0);
+        d.push_back(0.17415);
+        d.push_back(0.11985);
+        d.push_back(0.11655);
     }
     else if (ur == UR::UR16e)
     {
-        a[1] = 0;
-        a[2] = -0.4784;
-        a[3] = -0.36;
-        a[4] = 0;
-        a[5] = 0;
-        a[6] = 0;
+        a.push_back(0);
+        a.push_back(-0.4784);
+        a.push_back(-0.36);
+        a.push_back(0);
+        a.push_back(0);
+        a.push_back(0);
 
-        d[1] = 0.1807;
-        d[2] = 0;
-        d[3] = 0;
-        d[4] = 0.17415;
-        d[5] = 0.11985;
-        d[6] = 0.11655;
+        d.push_back(0.1807);
+        d.push_back(0);
+        d.push_back(0);
+        d.push_back(0.17415);
+        d.push_back(0.11985);
+        d.push_back(0.11655);
     }
 
-    alpha[1] = M_PI / 2;
-    alpha[2] = 0;
-    alpha[3] = 0;
-    alpha[4] = M_PI / 2;
-    alpha[5] = -M_PI / 2;
-    alpha[6] = 0;
+    alpha.push_back(M_PI / 2);
+    alpha.push_back(0);
+    alpha.push_back(0);
+    alpha.push_back(M_PI / 2);
+    alpha.push_back(-M_PI / 2);
+    alpha.push_back(0);
 }
 
 DHParam::~DHParam()

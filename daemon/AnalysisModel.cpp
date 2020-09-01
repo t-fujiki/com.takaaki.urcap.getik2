@@ -14,7 +14,7 @@ AnalysisModel::AnalysisModel(int ur, Pose tcp_pose, Pose tcp_offset)
 
 vector<double> AnalysisModel::solveIK(int num) const
 {
-    double theta[7];
+    double theta[6];
     theta[0] = 0;
 
     int number = num - 1;
@@ -51,66 +51,65 @@ vector<double> AnalysisModel::solveIK(int num) const
     double pz = t06.getEntry(2, 3);
 
     //---θ1
-    double p05x = px - ax * d[6];
-    double p05y = py - ay * d[6];
-    double p05z = pz - az * d[6];
+    double p05x = px - ax * d[5];
+    double p05y = py - ay * d[5];
+    double p05z = pz - az * d[5];
 
     double phi = atan2(p05y, p05x);
 
     if (plusT1)
-        theta[1] = asin(d[4] / sqrt(pow(p05x, 2) + pow(p05y, 2))) + phi;
+        theta[0] = asin(d[3] / sqrt(pow(p05x, 2) + pow(p05y, 2))) + phi;
     else
-        theta[1] = -asin(d[4] / sqrt(pow(p05x, 2) + pow(p05y, 2))) + phi + M_PI;
+        theta[0] = -asin(d[3] / sqrt(pow(p05x, 2) + pow(p05y, 2))) + phi + M_PI;
 
     //---θ5
-    double p16z = px * sin(theta[1]) - py * cos(theta[1]);
+    double p16z = px * sin(theta[0]) - py * cos(theta[0]);
 
     if (plusT5)
-        theta[5] = acos((p16z - d[4]) / d[6]);
+        theta[4] = acos((p16z - d[3]) / d[5]);
     else
-        theta[5] = -acos((p16z - d[4]) / d[6]);
+        theta[4] = -acos((p16z - d[3]) / d[5]);
 
     //---θ6
-    double n16z = nx * sin(theta[1]) - ny * cos(theta[1]);
-    double o16z = ox * sin(theta[1]) - oy * cos(theta[1]);
+    double n16z = nx * sin(theta[0]) - ny * cos(theta[0]);
+    double o16z = ox * sin(theta[0]) - oy * cos(theta[0]);
 
-    theta[6] = atan2(-o16z / sin(theta[5]), n16z / sin(theta[5]));
+    theta[6] = atan2(-o16z / sin(theta[4]), n16z / sin(theta[4]));
 
     //---θ3
-    double n05x = nx * cos(theta[6]) - ox * sin(theta[6]);
-    double n05y = ny * cos(theta[6]) - oy * sin(theta[6]);
-    double n05z = nz * cos(theta[6]) - oz * sin(theta[6]);
+    double n05x = nx * cos(theta[5]) - ox * sin(theta[5]);
+    double n05y = ny * cos(theta[5]) - oy * sin(theta[5]);
+    double n05z = nz * cos(theta[5]) - oz * sin(theta[5]);
 
-    double o05x = nx * sin(theta[6]) + ox * cos(theta[6]);
-    double o05y = ny * sin(theta[6]) + oy * cos(theta[6]);
-    double o05z = nz * sin(theta[6]) + oz * cos(theta[6]);
+    double o05x = nx * sin(theta[5]) + ox * cos(theta[5]);
+    double o05y = ny * sin(theta[5]) + oy * cos(theta[5]);
+    double o05z = nz * sin(theta[5]) + oz * cos(theta[5]);
 
-    double p14x = (o05y * d[5] + p05y) * sin(theta[1]) + (o05x * d[5] + p05x) * cos(theta[1]);
-    double p14y = o05z * d[5] + p05z - d[1];
+    double p14x = (o05y * d[4] + p05y) * sin(theta[0]) + (o05x * d[4] + p05x) * cos(theta[0]);
+    double p14y = o05z * d[4] + p05z - d[0];
 
     if (plusT3)
-        theta[3] = acos((pow(p14x, 2) + pow(p14y, 2) - pow(a[2], 2) - pow(a[3], 2)) / (2 * a[2] * a[3]));
+        theta[2] = acos((pow(p14x, 2) + pow(p14y, 2) - pow(a[2], 2) - pow(a[2], 2)) / (2 * a[1] * a[2]));
     else
-        theta[3] = -acos((pow(p14x, 2) + pow(p14y, 2) - pow(a[2], 2) - pow(a[3], 2)) / (2 * a[2] * a[3]));
+        theta[2] = -acos((pow(p14x, 2) + pow(p14y, 2) - pow(a[2], 2) - pow(a[2], 2)) / (2 * a[1] * a[2]));
 
     //---θ2
-    double c2 = (a[3] * (p14x * cos(theta[3]) + p14y * sin(theta[3])) + a[2] * p14x) / (pow(p14x, 2) + pow(p14y, 2));
-    double s2 = (a[3] * (p14y * cos(theta[3]) - p14x * sin(theta[3])) + a[2] * p14y) / (pow(p14x, 2) + pow(p14y, 2));
+    double c2 = (a[2] * (p14x * cos(theta[2]) + p14y * sin(theta[2])) + a[1] * p14x) / (pow(p14x, 2) + pow(p14y, 2));
+    double s2 = (a[2] * (p14y * cos(theta[2]) - p14x * sin(theta[2])) + a[1] * p14y) / (pow(p14x, 2) + pow(p14y, 2));
 
-    theta[2] = atan2(s2, c2);
+    theta[1] = atan2(s2, c2);
 
     //---θ4
-    double s234 = n05z * cos(theta[5]) - az * sin(theta[5]);
-    double c234 = (n05y * cos(theta[5]) - ay * sin(theta[5])) * sin(theta[1]) + (n05x * cos(theta[5]) - ax * sin(theta[5])) * cos(theta[1]);
+    double s234 = n05z * cos(theta[4]) - az * sin(theta[4]);
+    double c234 = (n05y * cos(theta[4]) - ay * sin(theta[4])) * sin(theta[0]) + (n05x * cos(theta[4]) - ax * sin(theta[4])) * cos(theta[0]);
 
-    theta[4] = atan2(s234, c234) - theta[2] - theta[3];
+    theta[3] = atan2(s234, c234) - theta[1] - theta[2];
 
     vector<double> theta_vector;
-    theta_vector.push_back(0);
 
     cout << "<Solved analysis solution>" << endl;
 
-    for (int i = 1; i < 7; i++)
+    for (int i = 0; i < 6; i++)
     {
         double s = sin(theta[i]);
         double c = cos(theta[i]);
@@ -128,14 +127,14 @@ Pose AnalysisModel::solveFK(vector<double> const &theta) const
 {
     DHParam param(ur);
 
-    TransMatrix t[7];
-    for (int i = 1; i < 7; i++)
+    TransMatrix t[6];
+    for (int i = 0; i < 6; i++)
     {
         t[i] = TransMatrix(param.a[i], param.d[i], param.alpha[i], theta[i]);
     }
 
     TransMatrix t_offset = TransMatrix(tcp_offset);
-    TransMatrix t_tcp = t[1] * t[2] * t[3] * t[4] * t[5] * t[6] * t_offset;
+    TransMatrix t_tcp = t[0] * t[1] * t[2] * t[3] * t[4] * t[5] * t_offset;
 
     double r11 = t_tcp.getEntry(0, 0);
     double r12 = t_tcp.getEntry(0, 1);
@@ -188,7 +187,7 @@ int AnalysisModel::getPattern(vector<double> const &theta) const
 {
     vector<double> _theta = theta;
 
-    for (int i = 1; i < 7; i++)
+    for (int i = 0; i < 6; i++)
     {
         double s = sin(theta[i]);
         double c = cos(theta[i]);
@@ -201,13 +200,13 @@ int AnalysisModel::getPattern(vector<double> const &theta) const
 
     DHParam param(ur);
 
-    TransMatrix t[7];
-    for (int i = 1; i < 7; i++)
+    TransMatrix t[6];
+    for (int i = 0; i < 6; i++)
     {
         t[i] = TransMatrix(param.a[i], param.d[i], param.alpha[i], _theta[i]);
     }
 
-    TransMatrix t_flange = t[1] * t[2] * t[3] * t[4] * t[5] * t[6];
+    TransMatrix t_flange = t[0] * t[1] * t[2] * t[3] * t[4] * t[5];
 
     double *d = param.d;
     double *a = param.a;
@@ -221,21 +220,21 @@ int AnalysisModel::getPattern(vector<double> const &theta) const
     double py = t_flange.getEntry(1, 3);
     double pz = t_flange.getEntry(2, 3);
 
-    double p05x = px - ax * d[6];
-    double p05y = py - ay * d[6];
-    double p05z = pz - az * d[6];
+    double p05x = px - ax * d[5];
+    double p05y = py - ay * d[5];
+    double p05z = pz - az * d[5];
 
     double phi = atan2(p05y, p05x);
 
-    double s = sin(theta[1] - phi);
-    double c = cos(theta[1] - phi);
+    double s = sin(theta[0] - phi);
+    double c = cos(theta[0] - phi);
     double q = abs(atan2(s, c));
 
     if (q < M_PI / 2)
         plusT1 = true;
-    if (theta[3] >= 0)
+    if (theta[2] >= 0)
         plusT3 = true;
-    if (theta[5] >= 0)
+    if (theta[4] >= 0)
         plusT5 = true;
 
     int number = (plusT1 ? 4 : 0) + (plusT3 ? 2 : 0) + (plusT5 ? 1 : 0) + 1;
